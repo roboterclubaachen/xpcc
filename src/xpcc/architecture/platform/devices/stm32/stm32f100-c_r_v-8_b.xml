@@ -60,7 +60,119 @@
       <vector position="55" name="TIM7"/>
     </driver>
     <driver type="adc" name="stm32f1" instances="1"/>
-    <driver type="clock" name="stm32"/>
+    <driver type="clock" name="stm32f1">
+      <!-- High speed clocks -->
+      <source name="InternalClock" type="clock" location="internal" speed="high" fixed="8000000">
+        <output name="Pll"/>
+        <output name="SystemClock"/>
+        <output name="ClockOutput"/>
+      </source>
+      <source name="ExternalClock" type="clock" location="external" speed="high" min="4000000" max="24000000">
+        <output name="Pll" prescaler="1:16:1" min="1000000"/>
+        <output name="SystemClock"/>
+        <output name="ClockOutput"/>
+        <output name="RealTimeClock"/>
+      </source>
+      <source name="ExternalCrystal" type="crystal" location="external" speed="high" min="1000000" max="24000000">
+        <output name="Pll"/>
+        <output name="SystemClock"/>
+        <output name="ClockOutput"/>
+        <output name="RealTimeClock"/>
+      </source>
+      <!-- Low speed clocks -->
+      <source name="LowSpeedInternalClock" type="clock" location="internal" speed="low" fixed="40000">
+        <output name="WatchdogClock"/>
+        <output name="RealTimeClock"/>
+      </source>
+      <source name="LowSpeedExternalClock" type="clock" location="external" speed="low" min="1" max="1000000">
+        <output name="RealTimeClock"/>
+      </source>
+      <source name="LowSpeedExternalCrystal" type="crystal" location="external" speed="low" fixed="32768">
+        <output name="RealTimeClock"/>
+      </source>
+      <!-- Sinks -->
+      <sink name="SystemClock" max="24000000">
+        <input name="InternalClock"/>
+        <input name="ExternalClock"/>
+        <input name="ExternalCrystal"/>
+        <input name="Pll"/>
+        <output name="ClockOutput"/>
+      </sink>
+      <sink name="RealTimeClock">
+        <input name="ExternalClock" prescaler="128"/>
+        <input name="ExternalCrystal" prescaler="128"/>
+        <input name="LowSpeedExternalClock"/>
+        <input name="LowSpeedExternalCrystal"/>
+        <input name="LowSpeedInternalClock"/>
+      </sink>
+      <sink name="WatchdogClock">
+        <input name="LowSpeedInternalClock"/>
+      </sink>
+      <sink name="ClockOutput">
+        <input name="Pll" prescaler="2"/>
+        <input name="SystemClock"/>
+        <input name="InternalClock"/>
+        <input name="ExternalClock"/>
+        <input name="ExternalCrystal"/>
+      </sink>
+      <!-- PLLs -->
+      <pll name="Pll" multiplier="2:16:1" max="24000000">
+        <input name="InternalClock" prescaler="2"/>
+        <input name="ExternalClock" prescaler="1:16:1" min="1000000"/>
+        <input name="ExternalCrystal" prescaler="1:16:1" min="1000000"/>
+        <output name="SystemClock"/>
+        <output name="ClockOutput"/>
+      </pll>
+      <!-- ClockTree -->
+      <tree name="ClockTree" input="SystemClock">
+        <!-- AHB Prescaler -->
+        <prescaler name="Ahb" prescaler="1,2,4,8,16,64,128,256,512">
+          <sink name="Hclk"/>
+          <sink name="SysTick" prescaler="1,8"/>
+          <sink name="Fclk"/>
+          <!-- APB1 Prescaler -->
+          <prescaler name="Apb1" prescaler="1,2,4,8,16">
+            <sink name="Usart2"/>
+            <sink name="Usart3"/>
+            <sink name="Uart4"/>
+            <sink name="Uart5"/>
+            <sink name="Spi2"/>
+            <sink name="Spi3"/>
+            <sink name="I2c1"/>
+            <sink name="I2c2"/>
+            <!-- if(APB1 prescaler == 1) x1 else x2 -->
+            <multiplier depends="Apb1" multiplier="1,2,2,2,2">
+              <sink name="Timer2"/>
+              <sink name="Timer3"/>
+              <sink name="Timer4"/>
+              <sink name="Timer5"/>
+              <sink name="Timer6"/>
+              <sink name="Timer7"/>
+              <sink name="Timer12"/>
+              <sink name="Timer13"/>
+              <sink name="Timer14"/>
+            </multiplier>
+          </prescaler>
+          <!-- APB2 Prescaler -->
+          <prescaler name="Apb2" prescaler="1,2,4,8,16">
+            <sink name="Usart1"/>
+            <sink name="Spi1"/>
+            <sink name="Adc1"/>
+            <!-- if(APB2 prescaler == 1) x1 else x2 -->
+            <multiplier depends="Apb2" multiplier="1,2,2,2,2">
+              <sink name="Timer1"/>
+              <sink name="Timer8"/>
+              <sink name="Timer9"/>
+              <sink name="Timer10"/>
+              <sink name="Timer11"/>
+              <sink name="Timer15"/>
+              <sink name="Timer16"/>
+              <sink name="Timer17"/>
+            </multiplier>
+          </prescaler>
+        </prescaler>
+      </tree>
+    </driver>
     <driver type="i2c" name="stm32" instances="1,2"/>
     <driver type="spi" name="stm32" instances="1,2"/>
     <driver type="spi" name="stm32_uart" instances="1,2,3"/>
