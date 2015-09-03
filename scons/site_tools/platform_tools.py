@@ -313,6 +313,8 @@ def filter_get_clock_tree_names(tree):
 
 	names = []
 	for k, v in tree.iteritems():
+		if k == 'sinks':
+			continue
 		if isinstance(v, list):
 			for l in v:
 				names.extend(filter_get_clock_tree_names(l))

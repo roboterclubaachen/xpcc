@@ -1,0 +1,69 @@
+/* Copyright (c) 2013, Roboterclub Aachen e.V.
+ * All Rights Reserved.
+ *
+ * The file is part of the xpcc library and is released under the 3-clause BSD
+ * license. See the file `LICENSE` for the full license governing this code.
+ * ------------------------------------------------------------------------- */
+
+#ifndef XPCC_STM32_CLOCK_TYPE_IDS_HPP
+#define XPCC_STM32_CLOCK_TYPE_IDS_HPP
+
+namespace xpcc
+{
+
+namespace stm32
+{
+
+/// @cond
+enum class
+ClockName
+{
+// sources
+%% for source in sources
+	{{ source.name }},
+%% endfor
+// sinks
+%% for sink in sinks
+	{{ sink.name }},
+%% endfor
+// plls
+%% for pll in plls
+	{{ pll.name }},
+%% endfor
+// clock trees
+%% for tree in trees
+	%% for name in tree | getClockTreeNames
+	{{ name }},
+	%% endfor
+%% endfor
+};
+/// @endcond
+
+namespace TypeId
+{
+// sources
+%% for source in sources
+	typedef struct{} {{ source.name }};
+%% endfor
+// sinks
+%% for sink in sinks
+	typedef struct{} {{ sink.name }};
+%% endfor
+// plls
+%% for pll in plls
+	typedef struct{} {{ pll.name }};
+%% endfor
+// clock trees
+%% for tree in trees
+	%% for name in tree | getClockTreeNames
+	typedef struct{} {{ name }};
+	%% endfor
+%% endfor
+
+}
+
+}   // namespace stm32
+
+}   // namespace xpcc
+
+#endif // XPCC_STM32_CLOCK_TYPE_IDS_HPP

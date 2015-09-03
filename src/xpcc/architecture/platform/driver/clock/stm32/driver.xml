@@ -6,7 +6,7 @@
 		<template>clock.cpp.in</template>
 		<template>clock.hpp.in</template>
 		<static>pll_calculator.hpp</static>
-		<static>type_ids.hpp</static>
+		<template>type_ids.hpp.in</template>
 
 		<usbprescaler device-name="042|048|070|072|078|102|103|302|303|373">True</usbprescaler>
 		<pllprediv device-family="f0|f3">True</pllprediv>
