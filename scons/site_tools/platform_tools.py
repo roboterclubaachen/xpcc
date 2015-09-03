@@ -322,6 +322,33 @@ def filter_get_clock_tree_names(tree):
 	return names
 
 # -----------------------------------------------------------------------------
+def filter_get_clock_input_prescalers(node):
+	"""
+	This filter accepts a clock node as e.g. used by the stm32 clock driver
+	and tries to extract all prescaler settings and returns them as a dictionary
+	{
+		'Pll': {'fixed': 2},
+		'ExternalClock': {'min': 1, 'max': 16},
+		'Ahb': {'min': 1, 'max': 512, 'values: [1, 2, 4, 8, 16, 64, 128, 256, 512]}
+	}
+	"""
+
+	prescalers = {}
+	for input in node['inputs']:
+		if 'prescaler' in input:
+			prescaler = input['prescaler']
+			if ':' in prescaler:
+				pmin, pmax = prescaler.split(':')
+				prescalers[input['name']] = {'min': int(pmin), 'max': int(pmax)}
+			elif ',' in prescaler:
+				values = map(int, prescaler.split(','))
+				prescalers[input['name']] = {'min': min(values), 'max': max(values), 'values': values}
+			else:
+				prescalers[input['name']] = {'fixed': int(prescaler)}
+
+	return prescalers
+
+# -----------------------------------------------------------------------------
 def filter_letter_to_num(letter):
 	"""
 	This filter turns one letter into a number.
@@ -348,6 +375,7 @@ def generate(env, **kw):
 	env.AddTemplateJinja2Filter('letterToNum', filter_letter_to_num)
 	env.AddTemplateJinja2Filter('getAdcs', filter_get_adcs)
 	env.AddTemplateJinja2Filter('getClockTreeNames', filter_get_clock_tree_names)
+	env.AddTemplateJinja2Filter('getClockInputPrescalers', filter_get_clock_input_prescalers)
 
 	########## Add Template Tests #############################################
 	# Generaic Tests (they accept a string)
