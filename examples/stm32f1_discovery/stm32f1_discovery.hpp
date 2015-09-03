@@ -26,7 +26,7 @@ namespace Board
 
 /// STM32F100 running at 24MHz generated from the external 8MHz crystal
 /// supplied by the on-board st-link
-typedef SystemClock<Pll<ExternalCrystal<MHz8>, MHz24> > systemClock;
+//typedef SystemClock<Pll<ExternalCrystal<MHz8>, MHz24> > systemClock;
 
 
 typedef GpioInputA0   Button;	// Blue PushButton
@@ -39,8 +39,8 @@ typedef GpioOutputC8  LedBlue;		// User LED 4
 inline void
 initialize()
 {
-	systemClock::enable();
-	xpcc::cortex::SysTickTimer::initialize<systemClock>();
+//	systemClock::enable();
+//	xpcc::cortex::SysTickTimer::initialize<systemClock>();
 
 	LedGreen::setOutput(xpcc::Gpio::Low);
 	LedBlue::setOutput(xpcc::Gpio::Low);
