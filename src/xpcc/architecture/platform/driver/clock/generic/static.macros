@@ -27,17 +27,27 @@
 %#* THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %#
 
+%% set op_lut = {"fixed": "==", "min": ">=", "max": "<="}
+%% set op_msg_lut = {"fixed": " ", "min": " greater or ", "max": " less or "}
 
-%% macro assertFrequency(name, frequency, type, value)
-%%	if value != None and value|length > 0
-%%		if type|lower == "min"
-	static_assert({{ frequency }} >= {{ value }},
-		"{{ frequency }} of {{ name }} needs to be higher or equal to {{ value }}");
-%%		elif type|lower == "max"
-	static_assert({{ frequency }} <= {{ value }},
-		"{{ frequency }} of {{ name }} needs to be lower or equal to {{ value }}");
-%%		endif
-%%	endif
+%% macro assertFrequency(parent, frequency, type, value)
+	static_assert(({{ frequency }} {{ op_lut[type] }} {{ value }}),
+		"The input frequency of {{ parent }} needs to be{{ op_msg_lut[type] }}equal to {{ value }}!");
+%% endmacro
+
+%% macro assertFrequencyForInput(parent, input, type, value, condition)
+	static_assert(
+		({{ input }}::Id != ClockName::{{ condition }}) or ({{ input }}::OutputFrequency {{ op_lut[type] }} {{ value }}),
+		"The output frequency of {{ condition }} in {{ parent }} needs to be{{ op_msg_lut[type] }}equal to {{ value }}!");
+%% endmacro
+
+
+%% macro assertValidInput(name, input, valid_inputs)
+	static_assert(
+%% for valid_input in valid_inputs
+		({{ input }}::Name == ClockName::{{ valid_input.name }}){{ "," if loop.last else " or" }}
+%%	endfor
+		"The clock source is not a valid selection for {{ name }}!");
 %% endmacro
 
 %% macro source(s, type_id_namespace)
