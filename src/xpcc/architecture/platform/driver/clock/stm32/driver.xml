@@ -2,10 +2,9 @@
 <!DOCTYPE rca SYSTEM "../../xml/driver.dtd">
 <rca version="1.0">
 	<driver type="clock" name="stm32">
-		<template>static.hpp.in</template>
 		<template>clock.cpp.in</template>
 		<template>clock.hpp.in</template>
-		<static>pll_calculator.hpp</static>
+
 		<template>type_ids.hpp.in</template>
 
 		<usbprescaler device-name="042|048|070|072|078|102|103|302|303|373">True</usbprescaler>
