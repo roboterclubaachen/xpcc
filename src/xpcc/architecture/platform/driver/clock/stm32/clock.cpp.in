@@ -12,37 +12,44 @@
 
 // ----------------------------------------------------------------------------
 bool
-xpcc::stm32::ClockTree::enableSource(ClockSource src, uint32_t /*kHz*/, uint32_t waitCycles)
+xpcc::stm32::ClockControl::enableSource(ClockSource src, uint32_t /*Hz*/, uint32_t waitCycles)
 {
-	if (src == ClockSource::InternalClock)
-		return true;	// InternalClock is always on
-	if (src == ClockSource::ExternalClock) {
-		RCC->CR |= RCC_CR_HSEBYP | RCC_CR_HSEON;
-		// return if already running
-		if(RCC->CR & (RCC_CR_HSEBYP | RCC_CR_HSEON) and (RCC->CR & RCC_CR_HSERDY))
+	switch (src)
+	{
+		case ClockSource::InternalClock:
+		case ClockSource::LowSpeedInternalClock:
+			// InternalClock is always on
 			return true;
-	}
-	else if(src == ClockSource::ExternalCrystal) {
-		RCC->CR |= RCC_CR_HSEON;
-		// return if already running
-		if(RCC->CR & (RCC_CR_HSEON) and (RCC->CR & RCC_CR_HSERDY))
-			return true;
-	}
-	else {
-		return false;	// should not get here
+
+		case ClockSource::ExternalClock:
+			RCC->CR |= RCC_CR_HSEBYP | RCC_CR_HSEON;
+			// return if already running
+			if( ((RCC->CR & (RCC_CR_HSEBYP | RCC_CR_HSEON)) == (RCC_CR_HSEBYP | RCC_CR_HSEON)) and (RCC->CR & RCC_CR_HSERDY) )
+				return true;
+			break;
+
+		case ClockSource::ExternalCrystal:
+			RCC->CR |= RCC_CR_HSEON;
+			// return if already running
+			if( RCC->CR & (RCC_CR_HSEON) and (RCC->CR & RCC_CR_HSERDY) )
+				return true;
+			break;
+
+		default:
+			return false;	// should not get here
 	}
 
-	uint32_t t = waitCycles;
-	while (!(RCC->CR & RCC_CR_HSERDY) && --t) {
-	}
+	bool retval;
+	while (not (retval = (RCC->CR & RCC_CR_HSERDY)) and --waitCycles)
+		;
 
-	return (RCC->CR & RCC_CR_HSERDY);
+	return retval;
 }
 
 %% if target is stm32f2 or target is stm32f4
 // ----------------------------------------------------------------------------
 void
-xpcc::stm32::ClockTree::enablePll(PllSource source, uint8_t pllM,
+xpcc::stm32::ClockControl::enablePll(PllSource source, uint8_t pllM,
 	uint16_t pllN, uint8_t pllP, uint8_t pllQ)
 {
 	uint32_t tmp = 0;
@@ -75,7 +82,7 @@ xpcc::stm32::ClockTree::enablePll(PllSource source, uint8_t pllM,
 %% else
 // ----------------------------------------------------------------------------
 void
-xpcc::stm32::ClockTree::enablePll(PllSource source,
+xpcc::stm32::ClockControl::enablePll(PllSource source,
 %% if usbprescaler is defined
 			UsbPrescaler usb,
 %% endif
@@ -121,7 +128,7 @@ xpcc::stm32::ClockTree::enablePll(PllSource source,
 
 // ----------------------------------------------------------------------------
 bool
-xpcc::stm32::ClockTree::switchSystemClockTo(SystemClockSource src, uint32_t waitCycles)
+xpcc::stm32::ClockControl::switchSystemClockTo(SystemClockSource src, uint32_t waitCycles)
 {
 	if (src == SystemClockSource::Pll)
 	{
