@@ -304,6 +304,24 @@ def filter_get_adcs(gpios):
 	return adcs
 
 # -----------------------------------------------------------------------------
+def filter_get_clock_tree_names(tree):
+	"""
+	This filter accepts a clock tree as e.g. used by the stm32 clock driver
+	and tries to extract all names of nodes, which is returned as a list of names
+	['ClockTree', 'Ahb']
+	"""
+
+	names = []
+	for k, v in tree.iteritems():
+		if isinstance(v, list):
+			for l in v:
+				names.extend(filter_get_clock_tree_names(l))
+		elif k == 'name':
+			names.append(v)
+
+	return names
+
+# -----------------------------------------------------------------------------
 def filter_letter_to_num(letter):
 	"""
 	This filter turns one letter into a number.
@@ -329,6 +347,7 @@ def generate(env, **kw):
 	env.AddTemplateJinja2Filter('getPorts',    filter_get_ports)
 	env.AddTemplateJinja2Filter('letterToNum', filter_letter_to_num)
 	env.AddTemplateJinja2Filter('getAdcs', filter_get_adcs)
+	env.AddTemplateJinja2Filter('getClockTreeNames', filter_get_clock_tree_names)
 
 	########## Add Template Tests #############################################
 	# Generaic Tests (they accept a string)
