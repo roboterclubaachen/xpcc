@@ -60,43 +60,21 @@
       <vector position="55" name="TIM7"/>
     </driver>
     <driver type="adc" name="stm32f1" instances="1"/>
-    <driver type="clock" name="stm32f1">
+    <driver type="clock" name="stm32">
       <!-- High speed clocks -->
-      <source name="InternalClock" type="clock" location="internal" speed="high" fixed="8000000">
-        <output name="Pll"/>
-        <output name="SystemClock"/>
-        <output name="ClockOutput"/>
-      </source>
-      <source name="ExternalClock" type="clock" location="external" speed="high" min="4000000" max="24000000">
-        <output name="Pll" prescaler="1:16:1" min="1000000"/>
-        <output name="SystemClock"/>
-        <output name="ClockOutput"/>
-        <output name="RealTimeClock"/>
-      </source>
-      <source name="ExternalCrystal" type="crystal" location="external" speed="high" min="1000000" max="24000000">
-        <output name="Pll"/>
-        <output name="SystemClock"/>
-        <output name="ClockOutput"/>
-        <output name="RealTimeClock"/>
-      </source>
+      <source name="InternalClock" type="clock" location="internal" speed="high" fixed="8000000"/>
+      <source name="ExternalClock" type="clock" location="external" speed="high" min="1000000" max="24000000"/>
+      <source name="ExternalCrystal" type="crystal" location="external" speed="high" min="4000000" max="24000000"/>
       <!-- Low speed clocks -->
-      <source name="LowSpeedInternalClock" type="clock" location="internal" speed="low" fixed="40000">
-        <output name="WatchdogClock"/>
-        <output name="RealTimeClock"/>
-      </source>
-      <source name="LowSpeedExternalClock" type="clock" location="external" speed="low" min="1" max="1000000">
-        <output name="RealTimeClock"/>
-      </source>
-      <source name="LowSpeedExternalCrystal" type="crystal" location="external" speed="low" fixed="32768">
-        <output name="RealTimeClock"/>
-      </source>
+      <source name="LowSpeedInternalClock" type="clock" location="internal" speed="low" fixed="40000"/>
+      <source name="LowSpeedExternalClock" type="clock" location="external" speed="low" min="1" max="1000000"/>
+      <source name="LowSpeedExternalCrystal" type="crystal" location="external" speed="low" fixed="32768"/>
       <!-- Sinks -->
       <sink name="SystemClock" max="24000000">
         <input name="InternalClock"/>
         <input name="ExternalClock"/>
         <input name="ExternalCrystal"/>
         <input name="Pll"/>
-        <output name="ClockOutput"/>
       </sink>
       <sink name="RealTimeClock">
         <input name="ExternalClock" prescaler="128"/>
@@ -116,19 +94,17 @@
         <input name="ExternalCrystal"/>
       </sink>
       <!-- PLLs -->
-      <pll name="Pll" multiplier="2:16:1" max="24000000">
+      <pll name="Pll" multiplier="2:16" max="24000000">
         <input name="InternalClock" prescaler="2"/>
-        <input name="ExternalClock" prescaler="1:16:1" min="1000000"/>
-        <input name="ExternalCrystal" prescaler="1:16:1" min="1000000"/>
-        <output name="SystemClock"/>
-        <output name="ClockOutput"/>
+        <input name="ExternalClock" prescaler="1:16" min="1000000"/>
+        <input name="ExternalCrystal" prescaler="1:16" min="1000000"/>
       </pll>
       <!-- ClockTree -->
       <tree name="ClockTree" input="SystemClock">
         <!-- AHB Prescaler -->
         <prescaler name="Ahb" prescaler="1,2,4,8,16,64,128,256,512">
           <sink name="Hclk"/>
-          <sink name="SysTick" prescaler="1,8"/>
+          <sink name="SystemTimer"/>
           <sink name="Fclk"/>
           <!-- APB1 Prescaler -->
           <prescaler name="Apb1" prescaler="1,2,4,8,16">
@@ -230,7 +206,7 @@
       </gpio>
       <gpio port="A" id="8">
         <af id="6,3,0" peripheral="Timer1" name="Channel1"/>
-        <af peripheral="MCO" type="out"/>
+        <af peripheral="ClockOutput" type="out"/>
         <af peripheral="Uart1" name="Ck" type="out"/>
         <af peripheral="UartSpiMaster1" name="Sck" type="out"/>
       </gpio>
