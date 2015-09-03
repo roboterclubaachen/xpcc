@@ -1,0 +1,103 @@
+/* Copyright (c) 2013, Roboterclub Aachen e.V.
+ * All Rights Reserved.
+ *
+ * The file is part of the xpcc library and is released under the 3-clause BSD
+ * license. See the file `LICENSE` for the full license governing this code.
+ * ------------------------------------------------------------------------- */
+
+%%	import '../generic/static.macros' as macro with context
+
+#ifndef XPCC_STM32_CLOCK_SINKS_HPP
+#define XPCC_STM32_CLOCK_SINKS_HPP
+
+#include <stdint.h>		// uint32_t
+#include "../../../device.hpp"
+#include "../../../type_ids.hpp"
+#include "../generic/common_clock.hpp"
+
+using namespace xpcc::clock;
+
+namespace xpcc
+{
+
+namespace stm32
+{
+
+%% for sink in sinks
+template< class Input >
+class
+{{ sink.name }}
+{
+{{ macro.assertValidInput(sink.name, "Input", sink.inputs) }}
+	%% if sink.min is defined
+{{ macro.assertFrequency(sink.name, "Input::OutputFrequency", "min", sink.min) }}
+	%% endif
+	%% if sink.max is defined
+{{ macro.assertFrequency(sink.name, "Input::OutputFrequency", "max", sink.max) }}
+	%% endif
+
+	%% for input in sink.inputs
+		%% if input.min is defined
+{{ macro.assertFrequencyForInput(sink.name, "Input", "min", input.min, input.name) }}
+		%% endif
+		%% if input.max is defined
+{{ macro.assertFrequencyForInput(sink.name, "Input", "max", input.max, input.name) }}
+		%% endif
+	%% endfor
+
+	static constexpr ClockControl::{{ sink.name }}Source
+	source = (
+	%% for input in sink.inputs
+		%% if not loop.last
+			( Input::Name == ClockName::{{ input.name }} )? ClockControl::{{ sink.name }}Source::{{ input.name }} :(
+		%% else
+			ClockControl::{{ sink.name }}Source::{{ input.name }} {{ ')' * (sink.inputs | length) }};
+		%% endif
+	%% endfor
+
+public:
+	static const TypeId::{{ sink.name }} Id;
+	static constexpr ClockName Name = ClockName::{{ sink.name }};
+
+	static StartupError
+	enable()
+	{
+		// enable input
+		StartupError err = Input::enable();
+		// quit if failed
+		if (err != StartupError::None) return err;
+
+		// switch sink to source
+		if (not ClockControl::switch{{ sink.name }}To( source ))
+			return StartupError::{{ sink.name }};
+
+	%% if sink.name == 'SystemClock'
+		xpcc::clock::fcpu     = OutputFrequency;
+		xpcc::clock::fcpu_kHz = OutputFrequency / 1000;
+		xpcc::clock::fcpu_MHz = OutputFrequency / 1000000;
+		xpcc::clock::ns_per_loop = std::round(1000000000.f / OutputFrequency * 3.f);
+	%% endif
+
+		return StartupError::None;
+	}
+
+	%% set prescalers = sink | getClockInputPrescalers
+	static constexpr uint32_t
+	%% if prescalers | length == 0
+	OutputFrequency = Input::OutputFrequency;
+	%% else
+	OutputFrequency = Input::OutputFrequency / (
+		%% for name, values in prescalers.items()
+		( Input::Name == ClockName::{{ name }} )? {{ values.fixed if values.fixed is defined else 'get'~name~'Prescaler()' }} :(
+		%% endfor
+		1{{ ')' * (prescalers | length + 1) }};
+	%% endif
+};
+
+%% endfor
+
+} // namespace stm32
+
+} // namespace xpcc
+
+#endif	// XPCC_STM32_CLOCK_SINKS_HPP
