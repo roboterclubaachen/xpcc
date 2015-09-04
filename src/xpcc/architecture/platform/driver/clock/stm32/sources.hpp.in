@@ -44,7 +44,7 @@ public:
 	static StartupError
 	enable(const uint32_t waitCycles = 1500)
 	{
-		if (not ClockControl::enableSource(ClockControl::ClockSource::{{ source.name }}, OutputFrequency, waitCycles))
+		if (not ClockControl::enableSource(ClockControl::ClockSource::{{ source.name }}, waitCycles))
 			return StartupError::{{ source.name }};
 		return StartupError::None;
 	}

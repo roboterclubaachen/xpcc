@@ -12,7 +12,7 @@
 
 // ----------------------------------------------------------------------------
 bool
-xpcc::stm32::ClockControl::enableSource(ClockSource src, uint32_t /*Hz*/, uint32_t waitCycles)
+xpcc::stm32::ClockControl::enableSource(ClockSource src, uint32_t waitCycles)
 {
 	switch (src)
 	{

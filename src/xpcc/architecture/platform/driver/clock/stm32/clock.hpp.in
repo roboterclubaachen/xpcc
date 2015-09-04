@@ -167,7 +167,7 @@ public:
 	 * requires source frequency in Hz
 	 */
 	static bool
-	enableSource(ClockSource src, uint32_t Hz, uint32_t waitCycles = 1500);
+	enableSource(ClockSource src, uint32_t waitCycles = 1500);
 
 %% if target is stm32f2 or target is stm32f4
 	/**
