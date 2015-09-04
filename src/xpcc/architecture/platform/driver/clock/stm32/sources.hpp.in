@@ -25,22 +25,24 @@ namespace stm32
 
 %% for source in sources
 
-template< uint32_t InputFrequency {{ "" if source.fixed is not defined else "= "~source.fixed }} >
+template< uint32_t Input {{ "" if source.fixed is not defined else "= "~source.fixed }} >
 class
 {{ source.name }}
 {
 	%% if source.fixed is defined
-{{ macro.assertFrequency(source.name, "InputFrequency", "fixed", source.fixed) }}
+{{ macro.assertFrequency(source.name, "Input", "fixed", source.fixed) }}
 	%% else
-{{ macro.assertFrequency(source.name, "InputFrequency", "min", source.min) }}
-{{ macro.assertFrequency(source.name, "InputFrequency", "max", source.max) }}
+{{ macro.assertFrequency(source.name, "Input", "min", source.min) }}
+{{ macro.assertFrequency(source.name, "Input", "max", source.max) }}
 	%% endif
 public:
 	static const TypeId::{{ source.name }} Id;
 	static constexpr ClockName Name = ClockName::{{ source.name }};
 
+	static constexpr uint32_t InputFrequency = Input;
 	static constexpr uint32_t OutputFrequency = InputFrequency;
 
+public:
 	static StartupError
 	enable(const uint32_t waitCycles = 1500)
 	{
