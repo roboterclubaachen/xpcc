@@ -8,6 +8,7 @@
 		<template>type_ids.hpp.in</template>
 
 		<template>sources.hpp.in</template>
+		<template>plls.hpp.in</template>
 		<template>sinks.hpp.in</template>
 
 		<usbprescaler device-name="042|048|070|072|078|102|103|302|303|373">True</usbprescaler>

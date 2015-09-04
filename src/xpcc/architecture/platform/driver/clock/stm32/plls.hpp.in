@@ -1,0 +1,264 @@
+/* Copyright (c) 2015, Roboterclub Aachen e.V.
+ * All Rights Reserved.
+ *
+ * The file is part of the xpcc library and is released under the 3-clause BSD
+ * license. See the file `LICENSE` for the full license governing this code.
+ * ------------------------------------------------------------------------- */
+
+%%	import '../generic/static.macros' as macro with context
+
+#ifndef XPCC_STM32_CLOCK_PLLS_HPP
+#define XPCC_STM32_CLOCK_PLLS_HPP
+
+#include <stdint.h>		// uint16_t
+#include "../../../device.hpp"
+#include "../../../type_ids.hpp"
+#include "../generic/common_clock.hpp"
+
+using namespace xpcc::clock;
+
+namespace xpcc
+{
+
+namespace stm32
+{
+
+%% for pll in plls
+%% set divisors = pll | getClockInputDivisors
+%% set multiplier = pll.multiplier | readNumberRange
+
+static constexpr uint16_t {{ pll.name }}MultiplierCount = {{ multiplier['values'] | count }};
+static constexpr uint16_t {{ pll.name }}Multipliers[{{ pll.name }}MultiplierCount] = { {{ multiplier['values'] | join(", ") }} };
+
+%% for name, range in divisors.items()
+%% set values = range['values']
+static constexpr uint16_t {{ pll.name ~ name }}DivisorCount = {{ values | count }};
+static constexpr uint16_t {{ pll.name ~ name }}Divisors[{{ pll.name ~ name }}DivisorCount] = { {{ values | join(", ") }} };
+%% endfor
+
+template< class Input, uint32_t Output >
+class
+{{ pll.name }}
+{
+{{ macro.assertValidInput(pll.name, "Input", pll.inputs) }}
+	{{ pll.name }}() = delete;
+	{{ pll.name }}(const {{ pll.name }}&) = delete;
+
+public:
+	static constexpr int16_t
+	findMultiplierIndex(uint16_t value, int index = 0)
+	{
+		return ((value == {{ pll.name }}Multipliers[index])?   // we found the multiplier
+					index:   // return the index
+					((index < {{ pll.name }}MultiplierCount)?  // are the still multipliers left?
+						findMultiplierIndex(value, index + 1): // try the next multiplier
+						-1));   // no multiplier left, value not found
+	}
+
+	static constexpr int16_t
+	getDivisorIndex(uint32_t index)
+	{ return int16_t(index & 0xffff); }
+	static constexpr int16_t
+	getMultiplierIndex(uint32_t index)
+	{ return int16_t(index >> 16); }
+
+	%% for name, range in divisors.items()
+		%% set values = range['values']
+	// ---------------------------------------- {{ name | upper }} ----------------------------------------------------
+	static constexpr int16_t
+	_find{{ name }}DivisorIndex(uint16_t value, int index = 0)
+	{
+		return ((value == {{ pll.name ~ name }}Divisors[index])?   // we found the divisor
+					index:   // return the index
+					((index < {{ pll.name ~ name }}DivisorCount)?  // are the still divisors left?
+						_find{{ name }}DivisorIndex(value, index + 1): // try the next divisor
+						-1));   // no divisors left, value not found
+	}
+	%% if range.maxFrequency is defined
+	static constexpr uint16_t
+	_get{{ name }}DivisorMinimumIndex(uint16_t value, int index = {{ pll.name ~ name }}DivisorCount - 1)
+	{
+		return ((value < {{ pll.name ~ name }}Divisors[index])?
+					((index == 0)?
+						0 :
+						_get{{ name }}DivisorMinimumIndex(value, index - 1)):
+					index);
+	}
+	%% endif
+	%% if range.minFrequency is defined
+	static constexpr uint16_t
+	_get{{ name }}DivisorMaximumIndex(uint16_t value, int index = 0)
+	{
+		return ((value > {{ pll.name ~ name }}Divisors[index])?
+					((index < {{ pll.name ~ name }}DivisorCount)?
+						_get{{ name }}DivisorMaximumIndex(value, index + 1):
+						{{ pll.name ~ name }}DivisorCount - 1):
+					index);
+	}
+	%% endif
+%#
+	static constexpr uint16_t
+	get{{ name }}DivisorMaximumIndex()
+	{
+		%% if range.minFrequency is defined
+		// min frequency is {{ range.minFrequency }}
+		return _get{{ name }}DivisorMaximumIndex( int(std::floor(float(Input::OutputFrequency) / {{ range.minFrequency }})));
+		%% else
+		return {{ pll.name ~ name }}DivisorCount - 1;
+		%% endif
+	}
+	static constexpr uint16_t
+	get{{ name }}DivisorMinimumIndex()
+	{
+		%% if range.maxFrequency is defined
+		// max frequency is {{ range.maxFrequency }}
+		return _get{{ name }}DivisorMinimumIndex( int(std::ceil(float(Input::OutputFrequency) / {{ range.maxFrequency }})));
+		%% else
+		return 0;
+		%% endif
+	}
+
+	// div is in LSB, mult in MSB
+	static constexpr uint32_t
+	_get{{ name }}MultDivIndex(uint32_t index = get{{ name }}DivisorMinimumIndex())
+	{
+		return ((getDivisorIndex(index) <= get{{ name }}DivisorMaximumIndex())?  // there are still some dividers left
+					((Output % (Input::OutputFrequency / {{ pll.name ~ name }}Divisors[index])) == 0)? // the result of (output / (input / div)) is an integer
+						(findMultiplierIndex(Output / (Input::OutputFrequency / {{ pll.name ~ name }}Divisors[index])) >= 0)? // the computed divisor in the multiplier range
+							(findMultiplierIndex(Output / (Input::OutputFrequency / {{ pll.name ~ name }}Divisors[index])) << 16 | getDivisorIndex(index)):    // return both indexes
+							_get{{ name }}MultDivIndex(getDivisorIndex(index) + 1): // otherwise, continue searching
+						_get{{ name }}MultDivIndex(getDivisorIndex(index) + 1):     // otherwise, continue searching
+				-1);    // no value found, return invalid index
+	}
+
+	static constexpr int16_t
+	get{{ name }}DivisorIndex()
+	{
+		return getDivisorIndex(_get{{ name }}MultDivIndex());
+	}
+	static constexpr int16_t
+	get{{ name }}MultiplierIndex()
+	{
+		return getMultiplierIndex(_get{{ name }}MultDivIndex());
+	}
+	static constexpr uint16_t
+	get{{ name }}Divisor()
+	{
+		return {{ pll.name ~ name }}Divisors[get{{ name }}DivisorIndex() >= 0 ? get{{ name }}DivisorIndex() : 0];
+	}
+%#
+	%% endfor
+%#
+	static constexpr int16_t
+	getPllMultiplierIndex()
+	{
+		return (
+		%% for name, range in divisors.items()
+			%% set getter = 'get' ~ name ~ 'MultiplierIndex()'
+			%% if not loop.last
+			( Input::Name == ClockName::{{ name }} )? {{ getter }} :(
+			%% else
+			{{ getter }} {{ ')' * (divisors | length) }};
+			%% endif
+		%% endfor
+	}
+
+	static constexpr int16_t
+	getSourceDivisorIndex()
+	{
+		return (
+		%% for name, range in divisors.items()
+			%% set getter = 'get' ~ name ~ 'DivisorIndex()'
+			%% if not loop.last
+			( Input::Name == ClockName::{{ name }} )? {{ getter }} :(
+			%% else
+			{{ getter }} {{ ')' * (divisors | length) }};
+			%% endif
+		%% endfor
+	}
+
+	static_assert(getPllMultiplierIndex() >= 0, "No appropriate source multiplier could be found!");
+	static_assert(getSourceDivisorIndex() >= 0, "No appropriate source divisor could be found!");
+
+public:
+	static constexpr ClockControl::{{ pll.name }}Source
+	Source = (
+	%% for input in pll.inputs
+		%% if not loop.last
+			( Input::Name == ClockName::{{ input.name }} )? ClockControl::{{ pll.name }}Source::{{ input.name }} :(
+		%% else
+			ClockControl::{{ pll.name }}Source::{{ input.name }} {{ ')' * (pll.inputs | length) }};
+		%% endif
+	%% endfor
+%#
+public:
+	static constexpr uint16_t
+	getPllMultiplier()
+	{
+		return {{ pll.name }}Multipliers[getPllMultiplierIndex() >= 0 ? getPllMultiplierIndex() : 0];
+	}
+
+	static constexpr uint16_t
+	getSourceDivisor()
+	{
+		return (
+		%% for name, range in divisors.items()
+			%% set getter = 'get' ~ name ~ 'Divisor()'
+			%% if not loop.last
+			( Input::Name == ClockName::{{ name }} )? {{ getter }} :(
+			%% else
+			{{ getter }} {{ ')' * (divisors | length) }};
+			%% endif
+		%% endfor
+	}
+
+public:
+	static const TypeId::{{ pll.name }} Id;
+	static constexpr ClockName Name = ClockName::{{ pll.name }};
+
+	static constexpr uint32_t InputFrequency = Input::OutputFrequency{{ ';' if (divisors | length == 0) else ' / getSourceDivisor();' }}
+	static constexpr uint32_t OutputFrequency = InputFrequency * getPllMultiplier();
+
+	static StartupError
+	enable()
+	{
+		// enable input
+		StartupError err = Input::enable();
+		// quit if failed
+		if (err != StartupError::None) return err;
+
+		// switch pll to source
+		if (not ClockControl::enable{{ pll.name }}( Source, getPllMultiplier(), getSourceDivisor() ))
+			return StartupError::{{ pll.name }};
+
+		return StartupError::None;
+	}
+
+private:
+	static_assert((OutputFrequency == Output),
+		"The generated output frequency is not equal to the requested output frequency!");
+
+	%% for input in pll.inputs
+		%% if input.min is defined
+{{ macro.assertFrequencyForInput(pll.name, "Input", "min", input.min, input.name) }}
+		%% endif
+		%% if input.max is defined
+{{ macro.assertFrequencyForInput(pll.name, "Input", "max", input.max, input.name) }}
+		%% endif
+	%% endfor
+
+	%% if pll.min is defined
+{{ macro.assertOutputFrequency(pll.name, "min", pll.min) }}
+	%% endif
+	%% if pll.max is defined
+{{ macro.assertOutputFrequency(pll.name, "max", pll.max) }}
+	%% endif
+};
+
+%% endfor
+
+} // namespace stm32
+
+} // namespace xpcc
+
+#endif	// XPCC_STM32_CLOCK_pllS_HPP
