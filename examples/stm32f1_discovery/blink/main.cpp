@@ -2,8 +2,9 @@
 
 using namespace Board;
 
-//using systemClock = SystemClock< InternalClock<> >;
-using systemClock = SystemClock< ExternalCrystal<MHz8> >;
+//using pll = Pll< InternalClock<>, MHz24 >;
+using pll = Pll< ExternalClock<MHz8>, 24000000 >;
+using systemClock = SystemClock< pll >;
 
 MAIN_FUNCTION
 {
