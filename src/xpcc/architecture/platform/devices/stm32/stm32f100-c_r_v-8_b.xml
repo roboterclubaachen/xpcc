@@ -77,8 +77,8 @@
         <input name="Pll"/>
       </sink>
       <sink name="RealTimeClock">
-        <input name="ExternalClock" prescaler="128"/>
-        <input name="ExternalCrystal" prescaler="128"/>
+        <input name="ExternalClock" divisor="128"/>
+        <input name="ExternalCrystal" divisor="128"/>
         <input name="LowSpeedExternalClock"/>
         <input name="LowSpeedExternalCrystal"/>
         <input name="LowSpeedInternalClock"/>
@@ -87,7 +87,7 @@
         <input name="LowSpeedInternalClock"/>
       </sink>
       <sink name="ClockOutput">
-        <input name="Pll" prescaler="2"/>
+        <input name="Pll" divisor="2"/>
         <input name="SystemClock"/>
         <input name="InternalClock"/>
         <input name="ExternalClock"/>
@@ -95,19 +95,19 @@
       </sink>
       <!-- PLLs -->
       <pll name="Pll" multiplier="2:16" max="24000000">
-        <input name="InternalClock" prescaler="2"/>
-        <input name="ExternalClock" prescaler="1:16" min="1000000"/>
-        <input name="ExternalCrystal" prescaler="1:16" min="1000000"/>
+        <input name="InternalClock" divisor="2"/>
+        <input name="ExternalClock" divisor="1:16" min="1000000"/>
+        <input name="ExternalCrystal" divisor="1:16" min="1000000"/>
       </pll>
       <!-- ClockTree -->
       <tree name="ClockTree" input="SystemClock">
         <!-- AHB Prescaler -->
-        <prescaler name="Ahb" prescaler="1,2,4,8,16,64,128,256,512">
+        <prescaler name="Ahb" divisor="1,2,4,8,16,64,128,256,512">
           <sink name="Hclk"/>
           <sink name="SystemTimer"/>
           <sink name="Fclk"/>
           <!-- APB1 Prescaler -->
-          <prescaler name="Apb1" prescaler="1,2,4,8,16">
+          <prescaler name="Apb1" divisor="1,2,4,8,16">
             <sink name="Usart2"/>
             <sink name="Usart3"/>
             <sink name="Uart4"/>
@@ -130,7 +130,7 @@
             </multiplier>
           </prescaler>
           <!-- APB2 Prescaler -->
-          <prescaler name="Apb2" prescaler="1,2,4,8,16">
+          <prescaler name="Apb2" divisor="1,2,4,8,16">
             <sink name="Usart1"/>
             <sink name="Spi1"/>
             <sink name="Adc1"/>
