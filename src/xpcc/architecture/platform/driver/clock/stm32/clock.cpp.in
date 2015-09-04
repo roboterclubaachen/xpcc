@@ -48,7 +48,7 @@ xpcc::stm32::ClockControl::enableSource(ClockSource src, uint32_t waitCycles)
 
 %% if target is stm32f2 or target is stm32f4
 // ----------------------------------------------------------------------------
-void
+bool
 xpcc::stm32::ClockControl::enablePll(PllSource source, uint8_t pllM,
 	uint16_t pllN, uint8_t pllP, uint8_t pllQ)
 {
@@ -78,10 +78,11 @@ xpcc::stm32::ClockControl::enablePll(PllSource source, uint8_t pllM,
 
 	// enable pll
 	RCC->CR |= RCC_CR_PLLON;
+	return true;
 }
 %% else
 // ----------------------------------------------------------------------------
-void
+bool
 xpcc::stm32::ClockControl::enablePll(PllSource source,
 %% if usbprescaler is defined
 			UsbPrescaler usb,
@@ -123,6 +124,7 @@ xpcc::stm32::ClockControl::enablePll(PllSource source,
 %% endif
 	// enable pll
 	RCC->CR |= RCC_CR_PLLON;
+	return true;
 }
 %%endif
 

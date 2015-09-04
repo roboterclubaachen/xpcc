@@ -199,11 +199,11 @@ public:
 	 * Example:
 	 *
 	 */
-	static void
+	static bool
 	enablePll(PllSource source, uint8_t pllM,
 					uint16_t pllN, uint8_t pllP, uint8_t pllQ);
 %% else
-	static void
+	static bool
 	enablePll(PllSource source,
 %% if usbprescaler is defined
 					UsbPrescaler usb,
