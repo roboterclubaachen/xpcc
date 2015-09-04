@@ -323,11 +323,29 @@ def filter_get_clock_tree_names(tree):
 
 	return names
 
+def filter_read_number_range(input):
+	"""
+	This filter accepts a string and tries to extract all divisor settings
+	and returns them as a dictionary
+	- {'fixed': 2, values: [2]} for "2"
+	- {'values: [1, 2, 3, 4, 5, 6, 7, 8]} for "1:8"
+	- {'values: [1, 2, 4, 8, 16, 64, 128, 256, 512]} for "1,2,4,8,16,64,128,256,512"
+	"""
+
+	if ':' in input:
+		pmin, pmax = map(int, input.split(':'))
+		return {'values': range(pmin, pmax + 1) }
+	elif ',' in input:
+		values = map(int, input.split(','))
+		return {'values': values}
+
+	return {'fixed': int(input), 'values': [2]}
+
 # -----------------------------------------------------------------------------
-def filter_get_clock_input_prescalers(node):
+def filter_get_clock_input_divisors(node):
 	"""
 	This filter accepts a clock node as e.g. used by the stm32 clock driver
-	and tries to extract all prescaler settings and returns them as a dictionary
+	and tries to extract all divisor settings and returns them as a dictionary
 	{
 		'Pll': {'fixed': 2},
 		'ExternalClock': {'min': 1, 'max': 16},
@@ -335,20 +353,16 @@ def filter_get_clock_input_prescalers(node):
 	}
 	"""
 
-	prescalers = {}
+	divisors = {}
 	for input in node['inputs']:
-		if 'prescaler' in input:
-			prescaler = input['prescaler']
-			if ':' in prescaler:
-				pmin, pmax = prescaler.split(':')
-				prescalers[input['name']] = {'min': int(pmin), 'max': int(pmax)}
-			elif ',' in prescaler:
-				values = map(int, prescaler.split(','))
-				prescalers[input['name']] = {'min': min(values), 'max': max(values), 'values': values}
-			else:
-				prescalers[input['name']] = {'fixed': int(prescaler)}
+		if 'divisor' in input:
+			divisors[input['name']] = filter_read_number_range(input['divisor'])
+			if 'min' in input:
+				divisors[input['name']]['minFrequency'] = input['min']
+			if 'max' in input:
+				divisors[input['name']]['maxFrequency'] = input['max']
 
-	return prescalers
+	return divisors
 
 # -----------------------------------------------------------------------------
 def filter_letter_to_num(letter):
@@ -377,7 +391,8 @@ def generate(env, **kw):
 	env.AddTemplateJinja2Filter('letterToNum', filter_letter_to_num)
 	env.AddTemplateJinja2Filter('getAdcs', filter_get_adcs)
 	env.AddTemplateJinja2Filter('getClockTreeNames', filter_get_clock_tree_names)
-	env.AddTemplateJinja2Filter('getClockInputPrescalers', filter_get_clock_input_prescalers)
+	env.AddTemplateJinja2Filter('getClockInputDivisors', filter_get_clock_input_divisors)
+	env.AddTemplateJinja2Filter('readNumberRange', filter_read_number_range)
 
 	########## Add Template Tests #############################################
 	# Generaic Tests (they accept a string)
