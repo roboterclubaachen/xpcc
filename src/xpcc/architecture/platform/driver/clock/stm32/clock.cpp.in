@@ -75,7 +75,7 @@ xpcc::stm32::ClockControl::enableLowSpeedExternalCrystal(uint32_t waitCycles)
 // ----------------------------------------------------------------------------
 bool
 xpcc::stm32::ClockControl::enablePll(PllSource source, uint8_t pllM,
-	uint16_t pllN, uint8_t pllP, uint8_t pllQ)
+	uint16_t pllN, uint8_t pllP, uint8_t pllQ, uint32_t waitCycles)
 {
 	uint32_t tmp = 0;
 
@@ -103,7 +103,11 @@ xpcc::stm32::ClockControl::enablePll(PllSource source, uint8_t pllM,
 
 	// enable pll
 	RCC->CR |= RCC_CR_PLLON;
-	return true;
+
+	while (not (tmp = (RCC->CR & RCC_CR_PLLRDY)) and --waitCycles)
+		;
+
+	return tmp;
 }
 %% else
 // ----------------------------------------------------------------------------
@@ -113,11 +117,11 @@ xpcc::stm32::ClockControl::enablePll(PllSource source,
 			UsbPrescaler usb,
 %% endif
 %% if pllprediv2 is defined
-			uint8_t pllMul, uint8_t pllPrediv, uint8_t pllPrediv2)
+			uint8_t pllMul, uint8_t pllPrediv, uint8_t pllPrediv2, uint32_t waitCycles)
 %% elif pllprediv is defined
-			uint8_t pllMul, uint8_t pllPrediv)
+			uint8_t pllMul, uint8_t pllPrediv, uint32_t waitCycles)
 %% else
-			uint8_t pllMul)
+			uint8_t pllMul, uint32_t waitCycles)
 %% endif
 {
 %% set pullmul = 'RCC_CFGR_PLLMULL' if target is stm32f1 else 'RCC_CFGR_PLLMUL'
@@ -149,7 +153,11 @@ xpcc::stm32::ClockControl::enablePll(PllSource source,
 %% endif
 	// enable pll
 	RCC->CR |= RCC_CR_PLLON;
-	return true;
+
+	while (not (tmp = (RCC->CR & RCC_CR_PLLRDY)) and --waitCycles)
+		;
+
+	return tmp;
 }
 %%endif
 
