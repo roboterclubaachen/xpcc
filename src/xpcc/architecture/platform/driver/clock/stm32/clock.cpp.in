@@ -155,7 +155,7 @@ xpcc::stm32::ClockControl::enablePll(PllSource source,
 
 // ----------------------------------------------------------------------------
 bool
-xpcc::stm32::ClockControl::switchSystemClockTo(SystemClockSource src, uint32_t waitCycles)
+xpcc::stm32::ClockControl::enableSystemClock(SystemClockSource src, uint32_t waitCycles)
 {
 	if (src == SystemClockSource::Pll)
 	{

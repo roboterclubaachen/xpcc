@@ -69,8 +69,7 @@ public:
 		// quit if failed
 		if (err != StartupError::None) return err;
 
-		// switch sink to source
-		if (not ClockControl::switch{{ sink.name }}To( Source ))
+		if (not ClockControl::enable{{ sink.name }}( Source ))
 			return StartupError::{{ sink.name }};
 
 	%% if sink.name == 'SystemClock'

@@ -162,6 +162,7 @@ public:
 	};
 %% endif
 public:
+	// sources
 	static bool
 	enableInternalClock(uint32_t waitCycles = 1500);
 
@@ -180,6 +181,7 @@ public:
 	static bool
 	enableLowSpeedExternalCrystal(uint32_t waitCycles = 1500);
 
+	// plls
 %% if target is stm32f2 or target is stm32f4
 	/**
 	 * Enable PLL.
@@ -228,55 +230,40 @@ public:
 	%% endif
 %% endif
 
+	// sinks
 	static bool
-	switchSystemClockTo(SystemClockSource src, uint32_t waitCycles = 1500);
+	enableSystemClock(SystemClockSource src, uint32_t waitCycles = 1500);
 
 	// TODO: implement this
 	static inline bool
-	switchRealTimeClockTo(RealTimeClockSource /*src*/)
+	enableRealTimeClock(RealTimeClockSource /*src*/)
 	{ return true; }
 
 	static inline bool
-	switchWatchdogClockTo(WatchdogClockSource /*src*/)
+	enableWatchdogClock(WatchdogClockSource /*src*/)
 	{ return true; }    // the WatchdogClock is always connected to LowSpeedInternalClock
 
 %% if target is stm32f2 or target is stm32f4
 	static inline bool
-	switchClockOutput1To(ClockOutput1Source src)
+	enableClockOutput1(ClockOutput1Source src, uint8_t div)
 	{
-		uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_MCO1);
-		RCC->CFGR = tmp | static_cast<uint32_t>(src);
-		return true;
-	}
-
-	static inline bool
-	setClockOutput1Division(int div)
-	{
-		uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_MCO1PRE);
+		uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_MCO1 | RCC_CFGR_MCO1PRE);
 		if (div > 1) tmp |= (div + 2) << 24;
-		RCC->CFGR = tmp;
-		return true;
-	}
-
-	static inline bool
-	switchClockOutput2To(ClockOutput2Source src)
-	{
-		uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_MCO2);
 		RCC->CFGR = tmp | static_cast<uint32_t>(src);
 		return true;
 	}
 
 	static inline bool
-	setClockOutput2Division(int div)
+	enableClockOutput2(ClockOutput2Source src)
 	{
-		uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_MCO2PRE);
+		uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_MCO2 | RCC_CFGR_MCO2PRE);
 		if (div > 1) tmp |= (div + 2) << 27;
-		RCC->CFGR = tmp;
+		RCC->CFGR = tmp | static_cast<uint32_t>(src);
 		return true;
 	}
 %% else
 	static inline bool
-	switchClockOutputTo(ClockOutputSource src)
+	enableClockOutput(ClockOutputSource src)
 	{
 		RCC->CFGR = (RCC->CFGR & ~(RCC_CFGR_MCO))| static_cast<uint32_t>(src);
 		return true;
