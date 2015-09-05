@@ -107,17 +107,21 @@ public:
 
 	enum class
 	RealTimeClockSource : uint32_t
-	{   // TODO: Implement this correctly
-		ExternalClock,
-		ExternalCrystal,
-		LowSpeedInternalClock,
-		LowSpeedExternalClock,
-		LowSpeedExternalCrystal
+	{
+		Lsi = RCC_BDCR_RTCSEL_LSI,
+		Lse = RCC_BDCR_RTCSEL_LSE,
+		Hse = RCC_BDCR_RTCSEL_HSE,
+
+		ExternalClock = Hse,
+		ExternalCrystal = Hse,
+		LowSpeedInternalClock = Lsi,
+		LowSpeedExternalClock = Lse,
+		LowSpeedExternalCrystal = Lse
 	};
 
 	enum class
 	WatchdogClockSource : uint32_t
-	{   // TODO: Implement this correctly
+	{
 		LowSpeedInternalClock = 0
 	};
 %% if target is stm32f2 or target is stm32f4
@@ -234,14 +238,12 @@ public:
 	static bool
 	enableSystemClock(SystemClockSource src, uint32_t waitCycles = 1500);
 
-	// TODO: implement this
 	static inline bool
-	enableRealTimeClock(RealTimeClockSource /*src*/)
-	{ return true; }
+	enableRealTimeClock(RealTimeClockSource src);
 
 	static inline bool
 	enableWatchdogClock(WatchdogClockSource /*src*/)
-	{ return true; }    // the WatchdogClock is always connected to LowSpeedInternalClock
+	{ return true; }
 
 %% if target is stm32f2 or target is stm32f4
 	static inline bool

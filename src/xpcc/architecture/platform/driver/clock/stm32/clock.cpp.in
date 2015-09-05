@@ -163,6 +163,13 @@ xpcc::stm32::ClockControl::enablePll(PllSource source,
 
 // ----------------------------------------------------------------------------
 bool
+xpcc::stm32::ClockControl::enableRealTimeClock(RealTimeClockSource src)
+{
+	RCC->BDCR = (RCC->BDCR & ~RCC_BDCR_RTCSEL) | RCC_BDCR_RTCEN | uint32_t(src);
+	return true;
+}
+
+bool
 xpcc::stm32::ClockControl::enableSystemClock(SystemClockSource src, uint32_t waitCycles)
 {
 	if (src == SystemClockSource::Pll)
