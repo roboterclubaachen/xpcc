@@ -3,13 +3,18 @@
 using namespace Board;
 
 //using pll = Pll< InternalClock<>, MHz24 >;
-using pll = Pll< ExternalClock<MHz8>, 24000000 >;
+using pll = Pll< ExternalClock<MHz8>, 22000000 >;
 using systemClock = SystemClock< pll >;
+
+using clockOutput = ClockOutput< pll >;
 
 MAIN_FUNCTION
 {
 	Board::initialize();
 	systemClock::enable();
+
+	clockOutput::enable();
+	GpioOutputA8::connect(clockOutput::Id);
 
 	LedBlue::set();
 
