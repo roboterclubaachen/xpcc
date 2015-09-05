@@ -12,37 +12,62 @@
 
 // ----------------------------------------------------------------------------
 bool
-xpcc::stm32::ClockControl::enableSource(ClockSource src, uint32_t waitCycles)
+xpcc::stm32::ClockControl::enableInternalClock(uint32_t waitCycles)
 {
-	switch (src)
-	{
-		case ClockSource::InternalClock:
-		case ClockSource::LowSpeedInternalClock:
-			// InternalClock is always on
-			return true;
-
-		case ClockSource::ExternalClock:
-			RCC->CR |= RCC_CR_HSEBYP | RCC_CR_HSEON;
-			// return if already running
-			if( ((RCC->CR & (RCC_CR_HSEBYP | RCC_CR_HSEON)) == (RCC_CR_HSEBYP | RCC_CR_HSEON)) and (RCC->CR & RCC_CR_HSERDY) )
-				return true;
-			break;
-
-		case ClockSource::ExternalCrystal:
-			RCC->CR |= RCC_CR_HSEON;
-			// return if already running
-			if( RCC->CR & (RCC_CR_HSEON) and (RCC->CR & RCC_CR_HSERDY) )
-				return true;
-			break;
-
-		default:
-			return false;	// should not get here
-	}
-
 	bool retval;
+	RCC->CR |= RCC_CR_HSION;
+	while (not (retval = (RCC->CR & RCC_CR_HSIRDY)) and --waitCycles)
+		;
+	return retval;
+}
+
+bool
+xpcc::stm32::ClockControl::enableExternalClock(uint32_t waitCycles)
+{
+	bool retval;
+	RCC->CR |= RCC_CR_HSEBYP | RCC_CR_HSEON;
 	while (not (retval = (RCC->CR & RCC_CR_HSERDY)) and --waitCycles)
 		;
+	return retval;
+}
 
+bool
+xpcc::stm32::ClockControl::enableExternalCrystal(uint32_t waitCycles)
+{
+	bool retval;
+	RCC->CR = (RCC->CR & ~RCC_CR_HSEBYP) | RCC_CR_HSEON;
+	while (not (retval = (RCC->CR & RCC_CR_HSERDY)) and --waitCycles)
+		;
+	return retval;
+}
+
+bool
+xpcc::stm32::ClockControl::enableLowSpeedInternalClock(uint32_t waitCycles)
+{
+	bool retval;
+	RCC->CSR |= RCC_CSR_LSION;
+	while (not (retval = (RCC->CSR & RCC_CSR_LSIRDY)) and --waitCycles)
+		;
+	return retval;
+}
+
+bool
+xpcc::stm32::ClockControl::enableLowSpeedExternalClock(uint32_t waitCycles)
+{
+	bool retval;
+	RCC->BDCR |= RCC_BDCR_LSEBYP | RCC_BDCR_LSEON;
+	while (not (retval = (RCC->BDCR & RCC_BDCR_LSERDY)) and --waitCycles)
+		;
+	return retval;
+}
+
+bool
+xpcc::stm32::ClockControl::enableLowSpeedExternalCrystal(uint32_t waitCycles)
+{
+	bool retval;
+	RCC->BDCR = (RCC->BDCR & ~RCC_BDCR_LSEBYP) | RCC_BDCR_LSEON;
+	while (not (retval = (RCC->BDCR & RCC_BDCR_LSERDY)) and --waitCycles)
+		;
 	return retval;
 }
 

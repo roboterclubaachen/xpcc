@@ -162,12 +162,23 @@ public:
 	};
 %% endif
 public:
-	/*
-	 * XPCC Static Clock Standard Interface
-	 * requires source frequency in Hz
-	 */
 	static bool
-	enableSource(ClockSource src, uint32_t waitCycles = 1500);
+	enableInternalClock(uint32_t waitCycles = 1500);
+
+	static bool
+	enableExternalClock(uint32_t waitCycles = 1500);
+
+	static bool
+	enableExternalCrystal(uint32_t waitCycles = 1500);
+
+	static bool
+	enableLowSpeedInternalClock(uint32_t waitCycles = 1500);
+
+	static bool
+	enableLowSpeedExternalClock(uint32_t waitCycles = 1500);
+
+	static bool
+	enableLowSpeedExternalCrystal(uint32_t waitCycles = 1500);
 
 %% if target is stm32f2 or target is stm32f4
 	/**
