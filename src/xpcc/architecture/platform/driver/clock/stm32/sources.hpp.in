@@ -30,8 +30,10 @@ class
 {{ source.name }}
 {
 	%% if source.fixed is defined
+	// This clock source has a fixed frequency of {{ source.fixed }}
 {{ macro.assertFrequency(source.name, "Input", "fixed", source.fixed) }}
 	%% else
+	// This clock source has a variable frequency between [{{ source.min }}, {{ source.max }}]
 {{ macro.assertFrequency(source.name, "Input", "min", source.min) }}
 {{ macro.assertFrequency(source.name, "Input", "max", source.max) }}
 	%% endif

@@ -74,6 +74,7 @@ public:
 			return StartupError::{{ sink.name }};
 
 	%% if sink.name == 'SystemClock'
+		// copy the generated system clock frequency into the run-time variables for the delay functions
 		xpcc::clock::fcpu        = OutputFrequency;
 		xpcc::clock::fcpu_kHz    = OutputFrequency / 1000;
 		xpcc::clock::fcpu_MHz    = OutputFrequency / 1000000;
