@@ -304,24 +304,52 @@ def filter_get_adcs(gpios):
 	return adcs
 
 # -----------------------------------------------------------------------------
-def filter_get_clock_tree_names(tree):
+def filter_flatten_clock_tree(node):
 	"""
 	This filter accepts a clock tree as e.g. used by the stm32 clock driver
-	and tries to extract all names of nodes, which is returned as a list of names
-	['ClockTree', 'Ahb']
+	and simply flattens the hierarchy of the tree while preversing definition
+	order and explicitly adding input relationship.
+	Retuns a list of annotated outputs:
+	[ {'name': 'Ahb', 'divisor': ['1', ..., '512'], 'input': 'SystemClock'},
+	  {'name': 'Hclk', 'input': 'Ahb'},
+	  {'name': 'Apb1', 'divisor': '1,2,4,8,16', 'input': 'Ahb'},
+	  ...
+	]
 	"""
 
-	names = []
-	for k, v in tree.iteritems():
-		if k == 'sinks':
-			continue
-		if isinstance(v, list):
-			for l in v:
-				names.extend(filter_get_clock_tree_names(l))
-		elif k == 'name':
-			names.append(v)
+	outputs = []
+	for output in node.get('outputs', []):
+		new = dict(output)
+		if any(k in ['divisor', 'multiplier'] for k in output):
+			new[k] = filter_read_number_range(new[k])
+		new.update({'input': node['name']})
+		outputs.append(new)
 
-	return names
+	for tree in node.get('trees', []):
+		parent = {'input': node['name']}
+		for k, v in tree.iteritems():
+			if k in ['divisor', 'multiplier']:
+				parent[k] = filter_read_number_range(v)
+			elif k not in ['inputs', 'outputs', 'trees']:
+				parent[k] = v
+		outputs.append(parent)
+		outputs.extend(filter_flatten_clock_tree(tree))
+
+	return outputs
+
+# -----------------------------------------------------------------------------
+def filter_filter_clock_tree(tree, filter):
+	"""
+	This filter accepts a clock tree as e.g. used by the stm32 clock driver
+	and filters out those nodes that do not have a divisor
+	"""
+	flat = filter_flatten_clock_tree(tree)
+
+	if not isinstance(filter, list):
+		filter = [filter]
+
+	output = [n for n in flat if any(filt in n for filt in filter)]
+	return output
 
 def filter_read_number_range(input):
 	"""
@@ -392,6 +420,8 @@ def generate(env, **kw):
 	env.AddTemplateJinja2Filter('getAdcs', filter_get_adcs)
 	env.AddTemplateJinja2Filter('getClockInputDivisors', filter_get_clock_input_divisors)
 	env.AddTemplateJinja2Filter('readNumberRange', filter_read_number_range)
+	env.AddTemplateJinja2Filter('flattenClockTree', filter_flatten_clock_tree)
+	env.AddTemplateJinja2Filter('filterClockTree', filter_filter_clock_tree)
 
 	########## Add Template Tests #############################################
 	# Generaic Tests (they accept a string)
