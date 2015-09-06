@@ -27,6 +27,7 @@ namespace stm32
 %% set divisors = pll | getClockInputDivisors
 %% set multiplier = pll.multiplier | readNumberRange
 
+/// @cond
 // divisor constants for {{ pll.name }}, must be sorted by <
 static constexpr uint16_t {{ pll.name }}MultiplierCount = {{ multiplier['values'] | count }};
 static constexpr uint16_t {{ pll.name }}Multipliers[{{ pll.name }}MultiplierCount] = { {{ multiplier['values'] | join(", ") }} };
@@ -37,7 +38,8 @@ static constexpr uint16_t {{ pll.name }}Multipliers[{{ pll.name }}MultiplierCoun
 static constexpr uint16_t {{ pll.name ~ name }}DivisorCount = {{ values | count }};
 static constexpr uint16_t {{ pll.name ~ name }}Divisors[{{ pll.name ~ name }}DivisorCount] = { {{ values | join(", ") }} };
 %% endfor
-%#
+/// @endcond
+
 template< class Input, uint32_t Output >
 class
 {{ pll.name }}
@@ -259,15 +261,15 @@ public:
 	static constexpr uint32_t OutputFrequency = InputFrequency * getPllMultiplier();
 
 	static StartupError
-	enable()
+	enable(const uint32_t waitCycles = 1500)
 	{
 		// enable input
-		StartupError err = Input::enable();
+		StartupError err = Input::enable(waitCycles);
 		// quit if failed
 		if (err != StartupError::None) return err;
 
 		// switch pll to source
-		if (not ClockControl::enable{{ pll.name }}( Source, getPllMultiplier(), getSourceDivisor() ))
+		if (not ClockControl::enable{{ pll.name }}( Source, getPllMultiplier(), getSourceDivisor(), waitCycles ))
 			return StartupError::{{ pll.name }};
 
 		return StartupError::None;
