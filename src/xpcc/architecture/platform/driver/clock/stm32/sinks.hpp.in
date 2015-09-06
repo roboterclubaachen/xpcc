@@ -154,6 +154,9 @@ public:
 	static constexpr uint32_t {{ output.name }} = {{ input }} * get{{ output.name }}Multiplier();
 		%% else
 	static constexpr uint32_t {{ output.name }} = {{ input }};
+			%% if output.alias is defined and output.alias == "Fcpu"
+	static constexpr uint32_t Fcpu = {{ output.name }};
+			%% endif
 		%% endif
 	%% endfor
 %#
