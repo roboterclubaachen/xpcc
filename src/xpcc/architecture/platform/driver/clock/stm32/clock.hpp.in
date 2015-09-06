@@ -124,6 +124,41 @@ public:
 	{
 		LowSpeedInternalClock = 0
 	};
+
+	enum class
+	AhbPrescaler : uint32_t
+	{
+		Div1   = RCC_CFGR_HPRE_DIV1,
+		Div2   = RCC_CFGR_HPRE_DIV2,
+		Div4   = RCC_CFGR_HPRE_DIV4,
+		Div8   = RCC_CFGR_HPRE_DIV8,
+		Div16  = RCC_CFGR_HPRE_DIV16,
+		Div64  = RCC_CFGR_HPRE_DIV64,
+		Div128 = RCC_CFGR_HPRE_DIV128,
+		Div256 = RCC_CFGR_HPRE_DIV256,
+		Div512 = RCC_CFGR_HPRE_DIV512
+	};
+
+	enum class
+	Apb1Prescaler : uint32_t
+	{
+		Div1   = RCC_CFGR_PPRE1_DIV1,
+		Div2   = RCC_CFGR_PPRE1_DIV2,
+		Div4   = RCC_CFGR_PPRE1_DIV4,
+		Div8   = RCC_CFGR_PPRE1_DIV8,
+		Div16  = RCC_CFGR_PPRE1_DIV16
+	};
+
+	enum class
+	Apb2Prescaler : uint32_t
+	{
+		Div1   = RCC_CFGR_PPRE2_DIV1,
+		Div2   = RCC_CFGR_PPRE2_DIV2,
+		Div4   = RCC_CFGR_PPRE2_DIV4,
+		Div8   = RCC_CFGR_PPRE2_DIV8,
+		Div16  = RCC_CFGR_PPRE2_DIV16
+	};
+
 %% if target is stm32f2 or target is stm32f4
 	enum class
 	ClockOutput1Source : uint32_t
@@ -239,7 +274,11 @@ public:
 	enableSystemClock(SystemClockSource src, uint32_t waitCycles = 1500);
 
 	static inline bool
-	enableRealTimeClock(RealTimeClockSource src);
+	enableRealTimeClock(RealTimeClockSource src)
+	{
+		RCC->BDCR = (RCC->BDCR & ~RCC_BDCR_RTCSEL) | RCC_BDCR_RTCEN | uint32_t(src);
+		return true;
+	}
 
 	static inline bool
 	enableWatchdogClock(WatchdogClockSource /*src*/)
@@ -251,27 +290,50 @@ public:
 	{
 		uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_MCO1 | RCC_CFGR_MCO1PRE);
 		if (div > 1) tmp |= (div + 2) << 24;
-		RCC->CFGR = tmp | static_cast<uint32_t>(src);
+		RCC->CFGR = tmp | uint32_t(src);
 		return true;
 	}
 
 	static inline bool
-	enableClockOutput2(ClockOutput2Source src)
+	enableClockOutput2(ClockOutput2Source src, uint8_t div)
 	{
 		uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_MCO2 | RCC_CFGR_MCO2PRE);
 		if (div > 1) tmp |= (div + 2) << 27;
-		RCC->CFGR = tmp | static_cast<uint32_t>(src);
+		RCC->CFGR = tmp | uint32_t(src);
 		return true;
 	}
 %% else
 	static inline bool
 	enableClockOutput(ClockOutputSource src)
 	{
-		RCC->CFGR = (RCC->CFGR & ~(RCC_CFGR_MCO))| static_cast<uint32_t>(src);
+		RCC->CFGR = (RCC->CFGR & ~(RCC_CFGR_MCO))| uint32_t(src);
 		return true;
 	}
 %% endif
 
+public:
+	static inline bool
+	setAhbPrescaler(AhbPrescaler prescaler)
+	{
+		RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | uint32_t(prescaler);
+		return true;
+	}
+
+	static inline bool
+	setApb1Prescaler(Apb1Prescaler prescaler)
+	{
+		RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | uint32_t(prescaler);
+		return true;
+	}
+
+	static inline bool
+	setApb2Prescaler(Apb2Prescaler prescaler)
+	{
+		RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | uint32_t(prescaler);
+		return true;
+	}
+
+public:
 	static inline uint32_t
 	getCpuFrequency()
 	{
