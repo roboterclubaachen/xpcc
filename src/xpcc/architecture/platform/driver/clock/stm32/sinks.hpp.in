@@ -24,12 +24,40 @@ namespace stm32
 {
 
 %% for sink in sinks
+%% set prescalers = sink | filterClockTree('divisor')
+
+%% for output in prescalers
+%% set values = output.divisor['values']
+enum class
+{{ output.name }}Prescaler : uint8_t
+{
+%% for value in values
+	Div{{ value }} = {{ loop.index - 1 }},
+%% endfor
+};
+/// @cond
+// divisor constants for {{ output.name }}, must be sorted by <
+static constexpr uint16_t {{ sink.name ~ output.name }}DivisorCount = {{ values | count }};
+static constexpr uint16_t {{ sink.name ~ output.name }}Divisors[{{ sink.name ~ output.name }}DivisorCount] = { {{ values | join(", ") }} };
+/// @endcond
+%#
+%% endfor
+/// @cond
+%% for output in sink | filterClockTree('depends')
+%% set values = output.multiplier['values']
+static constexpr uint16_t {{ sink.name ~ output.name }}Multipliers[{{ sink.name ~ output.depends }}DivisorCount] = { {{ values | join(", ") }} };
+%% endfor
+/// @endcond
+
+%% if prescalers | length > 0
+template< class Input, {% for p in prescalers %}{{p.name}}Prescaler {{p.name}}Divisor = {{p.name}}Prescaler(0){{ " >" if loop.last else ", " }}{% endfor %}
+%% else
 template< class Input >
+%% endif
 class
 {{ sink.name }}
 {
 {{ macro.assertValidInput(sink.name, "Input", sink.inputs) }}
-
 public:
 	static constexpr ClockControl::{{ sink.name }}Source
 	Source = (
@@ -40,18 +68,44 @@ public:
 			ClockControl::{{ sink.name }}Source::{{ input.name }} {{ ')' * (sink.inputs | length) }};
 		%% endif
 	%% endfor
+%#
+	%% for output in sink | filterClockTree('divisor')
+	static constexpr uint16_t
+	get{{ output.name }}Divisor()
+	{
+		return {{ sink.name ~ output.name }}Divisors[int({{ output.name }}Divisor)];
+	}
+	static constexpr ClockControl::{{ output.name }}Prescaler
+	get{{ output.name }}Prescaler()
+	{
+		return (
+		%% for value in output.divisor['values']
+			%% if not loop.last
+				( {{ output.name }}Divisor == {{ output.name }}Prescaler::Div{{ value }} )? ClockControl::{{ output.name }}Prescaler::Div{{ value }} :(
+			%% else
+				ClockControl::{{ output.name }}Prescaler::Div{{ value }} {{ ')' * (output.divisor['values'] | length) }};
+			%% endif
+		%% endfor
 
+	}
+	%% endfor
+	%% for output in sink | filterClockTree('depends')
+	static constexpr uint16_t
+	get{{ output.name }}Multiplier()
+	{
+		return {{ sink.name ~ output.name }}Multipliers[int({{ output.depends }}Divisor)];
+	}
+	%% endfor
+
+%#
 public:
 	static const TypeId::{{ sink.name }} Id;
 	static constexpr ClockName Name = ClockName::{{ sink.name }};
 
 	static constexpr uint32_t InputFrequency = Input::OutputFrequency;
 	%% set divisors = sink | getClockInputDivisors
-	static constexpr uint32_t OutputFrequency =
-	%% if divisors | length == 0
-			InputFrequency;
-	%% else
-			InputFrequency / (
+	static constexpr uint32_t OutputFrequency = InputFrequency{{ ';' if (divisors | length == 0) else ' / (' }}
+	%% if divisors | length > 0
 		%% for name, values in divisors.items()
 			%% if not loop.last
 			( Input::Name == ClockName::{{ name }} )? {{ values.fixed if values.fixed is defined else 'get'~name~'Divisor()' }} :(
@@ -60,30 +114,51 @@ public:
 			%% endif
 		%% endfor
 	%% endif
-
+%#
 	static StartupError
-	enable()
+	enable(const uint32_t waitCycles = 1500)
 	{
 		// enable input
-		StartupError err = Input::enable();
+		StartupError err = Input::enable(waitCycles);
 		// quit if failed
 		if (err != StartupError::None) return err;
 
 		if (not ClockControl::enable{{ sink.name }}( Source ))
 			return StartupError::{{ sink.name }};
-
-	%% if sink.name == 'SystemClock'
+%#
+	%% for output in sink | filterClockTree('divisor')
+		if (not ClockControl::set{{ output.name }}Prescaler(get{{ output.name }}Prescaler()))
+			return StartupError::{{ sink.name }};
+	%% endfor
+%#
+	%% for output in sink | flattenClockTree
+		%% if output.alias is defined and output.alias == "Fcpu"
 		// copy the generated system clock frequency into the run-time variables for the delay functions
-		xpcc::clock::fcpu        = OutputFrequency;
-		xpcc::clock::fcpu_kHz    = OutputFrequency / 1000;
-		xpcc::clock::fcpu_MHz    = OutputFrequency / 1000000;
-		xpcc::clock::ns_per_loop = std::round(1000000000.f / OutputFrequency * 3.f);
-	%% endif
-
+		xpcc::clock::fcpu        = {{ output.name }};
+		xpcc::clock::fcpu_kHz    = {{ output.name }} / 1000;
+		xpcc::clock::fcpu_MHz    = {{ output.name }} / 1000000;
+		xpcc::clock::ns_per_loop = std::round(1000000000.f / {{ output.name }} * 3.f);
+		%% endif
+	%% endfor
+%#
 		return StartupError::None;
 	}
 
+public:
+	// sink outputs
+	%% for output in sink | flattenClockTree
+		%% set input = 'OutputFrequency' if (output.input == sink.name) else output.input
+		%% if output.divisor is defined
+	static constexpr uint32_t {{ output.name }} = {{ input }} / get{{ output.name }}Divisor();
+		%% elif output.multiplier is defined
+	static constexpr uint32_t {{ output.name }} = {{ input }} * get{{ output.name }}Multiplier();
+		%% else
+	static constexpr uint32_t {{ output.name }} = {{ input }};
+		%% endif
+	%% endfor
+%#
 private:
+	// frequency constraints
 	%% for input in sink.inputs
 		%% if input.min is defined
 {{ macro.assertFrequencyForInput(sink.name, "Input", "min", input.min, input.name) }}
