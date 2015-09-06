@@ -30,12 +30,6 @@ ClockName
 %% for pll in plls
 	{{ pll.name }},
 %% endfor
-// clock trees
-%% for tree in trees
-	%% for name in tree | getClockTreeNames
-	{{ name }},
-	%% endfor
-%% endfor
 };
 /// @endcond
 
@@ -52,12 +46,6 @@ namespace TypeId
 // plls
 %% for pll in plls
 	typedef struct{} {{ pll.name }};
-%% endfor
-// clock trees
-%% for tree in trees
-	%% for name in tree | getClockTreeNames
-	typedef struct{} {{ name }};
-	%% endfor
 %% endfor
 
 }

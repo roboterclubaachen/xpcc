@@ -390,7 +390,6 @@ def generate(env, **kw):
 	env.AddTemplateJinja2Filter('getPorts',    filter_get_ports)
 	env.AddTemplateJinja2Filter('letterToNum', filter_letter_to_num)
 	env.AddTemplateJinja2Filter('getAdcs', filter_get_adcs)
-	env.AddTemplateJinja2Filter('getClockTreeNames', filter_get_clock_tree_names)
 	env.AddTemplateJinja2Filter('getClockInputDivisors', filter_get_clock_input_divisors)
 	env.AddTemplateJinja2Filter('readNumberRange', filter_read_number_range)
 
