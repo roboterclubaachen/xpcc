@@ -24,20 +24,23 @@ namespace stm32
 {
 
 %% for pll in plls
-%% set divisors = pll | getClockInputDivisors
-%% set multiplier = pll.multiplier | readNumberRange
+	%% set divisors = pll | getClockInputDivisors
+	%% set multiplier = pll.multiplier | readNumberRange
 
 /// @cond
-// divisor constants for {{ pll.name }}, must be sorted by <
+namespace detail
+{
+// multiplier constants for {{ pll.name }}, must be sorted by <
 static constexpr uint16_t {{ pll.name }}MultiplierCount = {{ multiplier['values'] | count }};
 static constexpr uint16_t {{ pll.name }}Multipliers[{{ pll.name }}MultiplierCount] = { {{ multiplier['values'] | join(", ") }} };
 
-%% for name, range in divisors.items()
-%% set values = range['values']
+	%% for name, range in divisors.items()
+		%% set values = range['values']
 // divisor constants for {{ name }}, must be sorted by <
 static constexpr uint16_t {{ pll.name ~ name }}DivisorCount = {{ values | count }};
 static constexpr uint16_t {{ pll.name ~ name }}Divisors[{{ pll.name ~ name }}DivisorCount] = { {{ values | join(", ") }} };
-%% endfor
+	%% endfor
+}   // namespace detail
 /// @endcond
 
 template< class Input, uint32_t Output >
@@ -67,8 +70,8 @@ class
 	static constexpr int16_t
 	findMultiplierIndex(uint16_t value, int index = 0)
 	{
-		return ((index < {{ pll.name }}MultiplierCount)?  // are the still multipliers left?
-					((value == {{ pll.name }}Multipliers[index])?   // we found the multiplier
+		return ((index < detail::{{ pll.name }}MultiplierCount)?  // are the still multipliers left?
+					((value == detail::{{ pll.name }}Multipliers[index])?   // we found the multiplier
 						index:   // return the index
 						findMultiplierIndex(value, index + 1)): // try the next multiplier
 					-1);   // no multiplier left, value not found
@@ -83,8 +86,8 @@ class
 	static constexpr int16_t
 	find{{ name }}DivisorIndex(uint16_t value, int index = 0)
 	{
-		return ((index < {{ pll.name ~ name }}DivisorCount)?  // are the still divisors left?
-					((value == {{ pll.name ~ name }}Divisors[index])?   // we found the divisor
+		return ((index < detail::{{ pll.name ~ name }}DivisorCount)?  // are the still divisors left?
+					((value == detail::{{ pll.name ~ name }}Divisors[index])?   // we found the divisor
 						index:   // return the index
 						find{{ name }}DivisorIndex(value, index + 1)): // try the next divisor
 					-1);   // no divisors left, value not found
@@ -94,9 +97,9 @@ class
 	/// Search happens from the largest to the smallest index, therefore `index` must be the index
 	/// from which to start the search. Return values are always within range of divisors, regardless of input.
 	static constexpr uint16_t
-	get{{ name }}DivisorMinimumIndex(uint16_t value, int index = {{ pll.name ~ name }}DivisorCount - 1)
+	get{{ name }}DivisorMinimumIndex(uint16_t value, int index = detail::{{ pll.name ~ name }}DivisorCount - 1)
 	{
-		return ((value < {{ pll.name ~ name }}Divisors[index])?
+		return ((value < detail::{{ pll.name ~ name }}Divisors[index])?
 					((index == 0)?
 						0 :
 						get{{ name }}DivisorMinimumIndex(value, index - 1)):
@@ -110,10 +113,10 @@ class
 	static constexpr uint16_t
 	get{{ name }}DivisorMaximumIndex(uint16_t value, int index = 0)
 	{
-		return ((value > {{ pll.name ~ name }}Divisors[index])?
-					((index < {{ pll.name ~ name }}DivisorCount)?
+		return ((value > detail::{{ pll.name ~ name }}Divisors[index])?
+					((index < detail::{{ pll.name ~ name }}DivisorCount)?
 						get{{ name }}DivisorMaximumIndex(value, index + 1):
-						{{ pll.name ~ name }}DivisorCount - 1):
+						detail::{{ pll.name ~ name }}DivisorCount - 1):
 					index);
 	}
 	%% endif
@@ -126,7 +129,7 @@ class
 		// min frequency is {{ range.minFrequency }}
 		return get{{ name }}DivisorMaximumIndex( int(std::floor(float(Input::OutputFrequency) / {{ range.minFrequency }})));
 		%% else
-		return {{ pll.name ~ name }}DivisorCount - 1;
+		return detail::{{ pll.name ~ name }}DivisorCount - 1;
 		%% endif
 	}
 	/// Returns the minimum divisor index as determined by the maximum frequency requirement on this clock path
@@ -150,9 +153,9 @@ class
 		// Appologies for this terrible ?: jungle, this will get better with C++14.
 		// this algortihm "simply" iterates over all divisors and chooses the first integer multiplier that is within the pll range.
 		return ((getDivisorIndex(index) <= get{{ name }}DivisorMaximumIndex())?  // there are still some dividers left
-					((Output % (Input::OutputFrequency / {{ pll.name ~ name }}Divisors[index])) == 0)? // the result of (output / (input / div)) is an integer
-						(findMultiplierIndex(Output / (Input::OutputFrequency / {{ pll.name ~ name }}Divisors[index])) >= 0)? // the computed divisor in the multiplier range
-							getCombiIndex(getDivisorIndex(index), findMultiplierIndex(Output / (Input::OutputFrequency / {{ pll.name ~ name }}Divisors[index]))):    // return both indexes
+					((Output % (Input::OutputFrequency / detail::{{ pll.name ~ name }}Divisors[index])) == 0)? // the result of (output / (input / div)) is an integer
+						(findMultiplierIndex(Output / (Input::OutputFrequency / detail::{{ pll.name ~ name }}Divisors[index])) >= 0)? // the computed divisor in the multiplier range
+							getCombiIndex(getDivisorIndex(index), findMultiplierIndex(Output / (Input::OutputFrequency / detail::{{ pll.name ~ name }}Divisors[index]))):    // return both indexes
 							get{{ name }}MultDivIndex(getDivisorIndex(index) + 1): // otherwise, continue searching
 						get{{ name }}MultDivIndex(getDivisorIndex(index) + 1):     // otherwise, continue searching
 				-1);    // no value found, return invalid index
@@ -176,7 +179,7 @@ class
 	static constexpr uint16_t
 	get{{ name }}Divisor()
 	{
-		return {{ pll.name ~ name }}Divisors[get{{ name }}DivisorIndex() >= 0 ? get{{ name }}DivisorIndex() : 0];
+		return detail::{{ pll.name ~ name }}Divisors[get{{ name }}DivisorIndex() >= 0 ? get{{ name }}DivisorIndex() : 0];
 	}
 %#
 	%% endfor
@@ -202,7 +205,7 @@ class
 	/// @retval >=0 if valid divisor found
 	/// @retval -1 if no divisor can be used
 	static constexpr int16_t
-	getSourceDivisorIndex()
+	getDivisorIndex()
 	{
 		return (
 		%% for name, range in divisors.items()
@@ -217,7 +220,7 @@ class
 
 	// sanity checks
 	static_assert(getPllMultiplierIndex() >= 0, "No appropriate source multiplier could be found!");
-	static_assert(getSourceDivisorIndex() >= 0, "No appropriate source divisor could be found!");
+	static_assert(getDivisorIndex() >= 0, "No appropriate source divisor could be found!");
 
 public:
 	static constexpr ClockControl::{{ pll.name }}Source
@@ -233,14 +236,14 @@ public:
 public:
 	/// Returns the actual computed multiplier value for the requested source, returns multiplier[0] if invalid index.
 	static constexpr uint16_t
-	getPllMultiplier()
+	getMultiplier()
 	{
-		return {{ pll.name }}Multipliers[getPllMultiplierIndex() >= 0 ? getPllMultiplierIndex() : 0];
+		return detail::{{ pll.name }}Multipliers[getPllMultiplierIndex() >= 0 ? getPllMultiplierIndex() : 0];
 	}
 
 	/// Returns the actual computed divisor value for the requested source, returns divisor[0] if invalid index.
 	static constexpr uint16_t
-	getSourceDivisor()
+	getDivisor()
 	{
 		return (
 		%% for name, range in divisors.items()
@@ -257,8 +260,8 @@ public:
 	static const TypeId::{{ pll.name }} Id;
 	static constexpr ClockName Name = ClockName::{{ pll.name }};
 
-	static constexpr uint32_t InputFrequency = Input::OutputFrequency{{ ';' if (divisors | length == 0) else ' / getSourceDivisor();' }}
-	static constexpr uint32_t OutputFrequency = InputFrequency * getPllMultiplier();
+	static constexpr uint32_t InputFrequency = Input::OutputFrequency{{ ';' if (divisors | length == 0) else ' / getDivisor();' }}
+	static constexpr uint32_t OutputFrequency = InputFrequency * getMultiplier();
 
 	static StartupError
 	enable(const uint32_t waitCycles = 1500)
@@ -269,7 +272,7 @@ public:
 		if (err != StartupError::None) return err;
 
 		// switch pll to source
-		if (not ClockControl::enable{{ pll.name }}( Source, getPllMultiplier(), getSourceDivisor(), waitCycles ))
+		if (not ClockControl::enable{{ pll.name }}( Source, getMultiplier(), getDivisor(), waitCycles ))
 			return StartupError::{{ pll.name }};
 
 		return StartupError::None;
