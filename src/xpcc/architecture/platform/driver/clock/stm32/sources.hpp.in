@@ -45,7 +45,7 @@ public:
 
 public:
 	static StartupError
-	enable(const uint32_t waitCycles = 1500)
+	enable(const uint32_t waitCycles = 2048)
 	{
 		if (not ClockControl::enable{{ source.name }}(waitCycles))
 			return StartupError::{{ source.name }};

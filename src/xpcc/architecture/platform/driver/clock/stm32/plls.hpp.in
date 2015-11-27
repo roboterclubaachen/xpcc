@@ -264,7 +264,7 @@ public:
 	static constexpr uint32_t OutputFrequency = InputFrequency * getMultiplier();
 
 	static StartupError
-	enable(const uint32_t waitCycles = 1500)
+	enable(const uint32_t waitCycles = 2048)
 	{
 		// enable input
 		StartupError err = Input::enable(waitCycles);

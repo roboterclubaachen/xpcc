@@ -203,22 +203,22 @@ public:
 public:
 	// sources
 	static bool
-	enableInternalClock(uint32_t waitCycles = 1500);
+	enableInternalClock(uint32_t waitCycles = 2048);
 
 	static bool
-	enableExternalClock(uint32_t waitCycles = 1500);
+	enableExternalClock(uint32_t waitCycles = 2048);
 
 	static bool
-	enableExternalCrystal(uint32_t waitCycles = 1500);
+	enableExternalCrystal(uint32_t waitCycles = 2048);
 
 	static bool
-	enableLowSpeedInternalClock(uint32_t waitCycles = 1500);
+	enableLowSpeedInternalClock(uint32_t waitCycles = 2048);
 
 	static bool
-	enableLowSpeedExternalClock(uint32_t waitCycles = 1500);
+	enableLowSpeedExternalClock(uint32_t waitCycles = 2048);
 
 	static bool
-	enableLowSpeedExternalCrystal(uint32_t waitCycles = 1500);
+	enableLowSpeedExternalCrystal(uint32_t waitCycles = 2048);
 
 	// plls
 %% if target is stm32f2 or target is stm32f4
@@ -253,7 +253,7 @@ public:
 	 */
 	static bool
 	enablePll(PllSource source, uint8_t pllM,
-					uint16_t pllN, uint8_t pllP, uint8_t pllQ, uint32_t waitCycles = 1500);
+					uint16_t pllN, uint8_t pllP, uint8_t pllQ, uint32_t waitCycles = 2048);
 %% else
 	static bool
 	enablePll(PllSource source,
@@ -261,17 +261,17 @@ public:
 				UsbPrescaler usb,
 %% endif
 	%% if pllprediv2 is defined
-				uint8_t pllMul, uint8_t pllPrediv, uint8_t pllPrediv2, uint32_t waitCycles = 1500);
+				uint8_t pllMul, uint8_t pllPrediv, uint8_t pllPrediv2, uint32_t waitCycles = 2048);
 	%% elif pllprediv is defined
-				uint8_t pllMul, uint8_t pllPrediv, uint32_t waitCycles = 1500);
+				uint8_t pllMul, uint8_t pllPrediv, uint32_t waitCycles = 2048);
 	%% else
-				uint8_t pllMul, uint32_t waitCycles = 1500);
+				uint8_t pllMul, uint32_t waitCycles = 2048);
 	%% endif
 %% endif
 
 	// sinks
 	static bool
-	enableSystemClock(SystemClockSource src, uint32_t waitCycles = 1500);
+	enableSystemClock(SystemClockSource src, uint32_t waitCycles = 2048);
 
 	static inline bool
 	enableRealTimeClock(RealTimeClockSource src)
