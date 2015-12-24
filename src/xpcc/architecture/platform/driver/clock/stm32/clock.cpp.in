@@ -127,12 +127,12 @@ xpcc::stm32::ClockControl::enablePll(PllSource source,
 %% set pullmul = 'RCC_CFGR_PLLMULL' if target is stm32f1 else 'RCC_CFGR_PLLMUL'
 	// Read reserved values and clear all other values
 %% if usbprescaler is defined
-	uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_USBPRE | {{pullmul}} | RCC_CFGR_PLLSRC);
+	uint32_t tmp = RCC->CFGR & ~(RCC_CFGR_USBPRE | {{pullmul}} | RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE);
 
 	// Divide Output for USB Clock by 1.5?
 	tmp |= static_cast<uint32_t>(usb);
 %% else
-	uint32_t tmp = RCC->CFGR & ~({{pullmul}} | RCC_CFGR_PLLSRC);
+	uint32_t tmp = RCC->CFGR & ~({{pullmul}} | RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE);
 %% endif
 
 	// PLLSRC source for pll
@@ -141,13 +141,16 @@ xpcc::stm32::ClockControl::enablePll(PllSource source,
 	// Pll multiplication factor
 	tmp |= (static_cast<uint32_t>(pllMul - 2) << 18) & {{pullmul}};
 
-	RCC->CFGR = tmp;
-
 %% if pllprediv is defined
 	%% set mask = 'RCC_CFGR2_PREDIV1' if target is stm32f1 else 'RCC_CFGR2_PREDIV'
+#ifdef {{mask}}
 	// HSE PREDIV division factor
 	RCC->CFGR2 = (RCC->CFGR2 & ~({{mask}})) | (uint32_t(pllPrediv - 1) & {{mask}});
+#else
+	if (uint32_t(pllPrediv - 1) & 0x1) tmp |= RCC_CFGR_PLLXTPRE;
+#endif
 %% endif
+	RCC->CFGR = tmp;
 %% if pllprediv2 is defined
 	RCC->CFGR2 = (RCC->CFGR2 & ~(RCC_CFGR2_PREDIV2)) | ((uint32_t(pllPrediv2 - 1) << 4) & RCC_CFGR2_PREDIV2);
 %% endif
