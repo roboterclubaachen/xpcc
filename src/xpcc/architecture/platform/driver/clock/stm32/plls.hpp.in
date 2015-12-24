@@ -272,7 +272,11 @@ public:
 		if (err != StartupError::None) return err;
 
 		// switch pll to source
+	%% if usbprescaler is defined
+		if (not ClockControl::enable{{ pll.name }}( Source, ClockControl::UsbPrescaler::DivideBy1Point5, getMultiplier(), getDivisor(), waitCycles ))
+	%% else
 		if (not ClockControl::enable{{ pll.name }}( Source, getMultiplier(), getDivisor(), waitCycles ))
+	%% endif
 			return StartupError::{{ pll.name }};
 
 		return StartupError::None;
