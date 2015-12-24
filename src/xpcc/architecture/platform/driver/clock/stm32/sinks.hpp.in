@@ -95,7 +95,6 @@ public:
 				ClockControl::{{ output.name }}Prescaler::Div{{ value }} {{ ')' * (output.divisor['values'] | length) }};
 			%% endif
 		%% endfor
-
 	}
 	%% endfor
 	%% for output in sink | filterClockTree('depends')
@@ -163,9 +162,15 @@ public:
 	static constexpr uint32_t {{ output.name }} = {{ input }} * get{{ output.name }}Multiplier();
 		%% else
 	static constexpr uint32_t {{ output.name }} = {{ input }};
-			%% if output.alias is defined and output.alias == "Fcpu"
-	static constexpr uint32_t Fcpu = {{ output.name }};
+			%% if output.alias is defined
+	static constexpr uint32_t {{ output.alias }} = {{ output.name }};
 			%% endif
+		%% endif
+		%% if output.min is defined
+{{ macro.assertFrequency(output.name, output.name, "min", output.min) }}
+		%% endif
+		%% if output.max is defined
+{{ macro.assertFrequency(output.name, output.name, "max", output.max) }}
 		%% endif
 	%% endfor
 %#
