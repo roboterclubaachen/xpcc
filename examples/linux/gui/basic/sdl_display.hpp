@@ -32,7 +32,7 @@
 
 #include <xpcc/ui/display.hpp>
 #include <xpcc/debug/logger.hpp>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 namespace xpcc
 {
