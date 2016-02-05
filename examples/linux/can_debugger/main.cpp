@@ -27,8 +27,9 @@ xpcc::hosted::CanUsb canUsb;
 int
 main()
 {
-	if (!canUsb.open("/dev/ttyUSB0", canBusBaudRate)) {
+	if (not canUsb.open("/dev/ttyUSB0", canBusBaudRate)) {
 		XPCC_LOG_ERROR << "Could not open port" << xpcc::endl;
+		exit(EXIT_FAILURE);
 	}
 
 	while(true)
