@@ -11,6 +11,7 @@
 
 #include <xpcc/architecture/utils.hpp> // XPCC__ARRAY_SIZE
 #include <stdio.h>	// snprintf
+#include <string.h>	// memset
 
 // ----------------------------------------------------------------------------
 // simple IODevice which stores all data in a memory buffer
@@ -35,8 +36,8 @@ public:
 	virtual void
 	flush()
 	{
-		// TODO
-		write('\b');
+		memset(this->buffer, 0, this->buffer_length);
+		this->bytesWritten = 0;
 	}
 
 	/// Reading is not implemented
