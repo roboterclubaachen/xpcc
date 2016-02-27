@@ -9,6 +9,9 @@
 
 #include "io_stream_test.hpp"
 
+#include <xpcc/architecture/utils.hpp> // XPCC__ARRAY_SIZE
+#include <stdio.h>	// snprintf
+
 // ----------------------------------------------------------------------------
 // simple IODevice which stores all data in a memory buffer
 // used for testing the output of an IOStream
@@ -19,6 +22,7 @@ public:
 	MemoryWriter() :
 		bytesWritten(0) {}
 
+	/// Write a single char to the buffer.
 	virtual void
 	write(char c)
 	{
@@ -35,19 +39,23 @@ public:
 		write('\b');
 	}
 
+	/// Reading is not implemented
 	virtual bool
 	read(char& /*c*/)
 	{
 		return false;
 	}
 
+	/// Clear the buffer and reset counter.
 	void
 	clear()
 	{
+		memset(this->buffer, 0, this->buffer_length);
 		this->bytesWritten = 0;
 	}
 
-	char buffer[100];
+	static constexpr std::size_t buffer_length = 100;
+	char buffer[buffer_length];
 	int bytesWritten;
 };
 
