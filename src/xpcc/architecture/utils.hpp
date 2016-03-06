@@ -132,15 +132,23 @@
 	#endif
 
 	#ifdef XPCC__CPU_AVR
-	#	define	MAIN_FUNCTION	int main(void) __attribute__((OS_main)); \
+	#	define	xpcc_main(...)	main(void) __attribute__((OS_main)); \
 								int main(void)
-	#	define	MAIN_FUNCTION_NAKED MAIN_FUNCTION
 	#elif defined XPCC__OS_HOSTED
-	#	define 	MAIN_FUNCTION		int main( int argc, char* argv[] )
-	#	define	MAIN_FUNCTION_NAKED	int main( int,      char**       )
+	#	define 	xpcc_main(...)	main(__VA_ARGS__)
 	#else
-	#	define	MAIN_FUNCTION	int main(void)
-	#	define	MAIN_FUNCTION_NAKED MAIN_FUNCTION
+	#	define	xpcc_main(...)	main(void)
+	#endif
+
+	#ifdef XPCC__CPU_AVR
+	#	define	MAIN_FUNCTION		int xpcc_main()
+	#	define	MAIN_FUNCTION_NAKED	int xpcc_main()
+	#elif defined XPCC__OS_HOSTED
+	#	define	MAIN_FUNCTION		int xpcc_main(int argc, char** argv)
+	#	define	MAIN_FUNCTION_NAKED	int xpcc_main(int     , char**     )
+	#else
+	#	define	MAIN_FUNCTION		int xpcc_main()
+	#	define	MAIN_FUNCTION_NAKED	int xpcc_main()
 	#endif
 
 	#define XPCC__ARRAY_SIZE(x)	(sizeof(x) / sizeof(x[0]))
