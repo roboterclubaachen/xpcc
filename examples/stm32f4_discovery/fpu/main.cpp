@@ -2,7 +2,8 @@
 #include <xpcc/math.hpp>
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

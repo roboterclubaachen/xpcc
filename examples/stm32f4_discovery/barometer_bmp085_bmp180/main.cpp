@@ -108,7 +108,8 @@ private:
 ThreadOne one;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

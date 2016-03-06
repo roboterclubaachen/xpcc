@@ -11,7 +11,8 @@
 
 #include "../../arduino_uno.hpp"
 
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	DigitalOutput13::setOutput();
 

@@ -10,7 +10,7 @@ typedef GpioC2 OneWirePin;
 xpcc::SoftwareOneWireMaster<OneWirePin> ow;
 
 int
-main()
+xpcc_main()
 {
 	typedef xpcc::avr::SystemClock c;
 	Uart0::initialize<c, 9600>();

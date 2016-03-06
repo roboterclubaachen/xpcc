@@ -89,7 +89,7 @@ ISR(TIMER2_COMPA_vect)
 }
 
 int
-main()
+xpcc_main()
 {
 	// timeout initialization
 	// compare-match-interrupt every 1 ms at 14.7456 MHz

@@ -9,7 +9,7 @@ typedef xpcc::avr::SystemClock systemClock;
 Uart0 uart;
 
 int
-main()
+xpcc_main()
 {
 	uart.initialize<systemClock, 115200>();
 

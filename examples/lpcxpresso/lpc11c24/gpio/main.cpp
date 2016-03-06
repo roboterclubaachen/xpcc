@@ -13,7 +13,7 @@
 #include "../lpcxpresso11c24.hpp"
 
 int
-main(void)
+xpcc_main()
 {
 	defaultSystemClock::enable();
 	SysTickTimer::initialize<defaultSystemClock>();

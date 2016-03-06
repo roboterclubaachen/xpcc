@@ -6,7 +6,8 @@
  * The ASCII sequence 'A', 'B', 'C, ... , 'Z', 'A', 'B', 'C', ...
  * is printed with 9600 baud, 8N1 at pin PA3.
  */
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

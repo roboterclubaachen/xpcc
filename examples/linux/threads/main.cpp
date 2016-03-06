@@ -57,7 +57,7 @@ Thread1 thread1;
 Thread2 thread2;
 
 int
-main(void)
+xpcc_main()
 {
 	// start scheduler
 	xpcc::rtos::Scheduler::schedule();	

@@ -23,7 +23,7 @@ function(xpcc::accessor::Flash<char> s)
 }
 
 int
-main(void)
+xpcc_main()
 {
 	xpcc::accessor::Flash<int> bar(&foo);
 

@@ -6,7 +6,7 @@
 #define	XPCC_LOG_LEVEL xpcc::log::DEBUG
 
 int
-main()
+xpcc_main()
 {
 	// Use the logging streams to print some messages.
 	// Change XPCC_LOG_LEVEL above to enable or disable these messages 

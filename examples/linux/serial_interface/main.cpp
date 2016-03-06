@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 int
-main()
+xpcc_main()
 {
 	xpcc::hosted::SerialInterface port("/dev/ttyUSB0", 115200);
 	

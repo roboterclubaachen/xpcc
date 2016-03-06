@@ -46,7 +46,7 @@ ISR(TIMER2_COMPA_vect)
 }
 
 int
-main()
+xpcc_main()
 {
 	LedGreen::setOutput(xpcc::Gpio::High);
 	LedRed::setOutput(xpcc::Gpio::Low);

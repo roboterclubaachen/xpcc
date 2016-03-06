@@ -4,7 +4,8 @@
 using namespace Board;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 	LedD13::setOutput(xpcc::Gpio::Low);

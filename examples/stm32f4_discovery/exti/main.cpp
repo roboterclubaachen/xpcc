@@ -44,7 +44,8 @@ EXTI15_10_IRQHandler(void)
 }
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

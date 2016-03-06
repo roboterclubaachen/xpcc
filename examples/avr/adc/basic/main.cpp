@@ -9,7 +9,7 @@ xpcc::atmega::Uart0 uart;
 
 
 int
-main()
+xpcc_main()
 {
     // Create a new UART object and configure it to a baudrate of 9600
     GpioOutputD1::connect(Uart0::Tx);
