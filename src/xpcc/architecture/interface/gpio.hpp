@@ -66,7 +66,7 @@
  * typedef GpioOutputB0 Led;
  *
  * int
- * main(void)
+ * xpcc_main()
  * {
  *     Led::setOutput();
  *     Led::set();

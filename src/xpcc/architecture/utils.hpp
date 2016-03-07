@@ -36,31 +36,52 @@
 #ifdef __DOXYGEN__
 
 	/**
-	 * \brief	Main function definition for microcontroller projects
+	 * Entry point definition for any xpcc project.
 	 *
-	 * Inhibits some stack operations at the beginning of main for avr-gcc. May
-	 * save up a few bytes of stack memory.
+	 * This is a very light wrapper around the main function, which passes the
+	 * function arguments to `main()` only when compiling for the hosted target.
+	 * On embedded targets, the main function does not receive any arguments.
 	 *
-	 * Typical structure of an microcontroller program:
-	 * \code
+	 * Example entry point of a embedded only target:
+	 * @code
 	 * #include <xpcc/architecture/platform.hpp>
 	 *
-	 * MAIN_FUNCTION
+	 * int
+	 * xpcc_main()
 	 * {
-	 *    ...
-	 *
-	 *    while (1)
-	 *    {
-	 *        ...
-	 *    }
+	 *     // setup
+	 *     while (1)
+	 *     {
+	 *         // main loop
+	 *     }
 	 * }
-	 * \endcode
+	 * @endcode
 	 *
-	 * \ingroup	platform
+	 * Example entry point for a mixed hosted and embedded target:
+	 * @code
+	 * #include <xpcc/architecture/platform.hpp>
+	 *
+	 * int
+	 * xpcc_main(int argc, char** argv)
+	 * {
+	 * #ifdef XPCC__OS_HOSTED
+	 *     // evaluate `argc` and `argv`
+	 * #else
+	 *     // argc, argv not available for embedded target!
+	 * #endif
+	 * }
+	 * @endcode
+	 *
+	 * @ingroup	platform
 	 */
+	#define xpcc_main(...)	main()
+
+	/// @deprecated Use `xpcc_main()` instead!
+	/// @ingroup	platform
 	#define	MAIN_FUNCTION
 
-	/** Same as MAIN_FUNCTION but avoids warning about unused parameters */
+	/// @deprecated Use `xpcc_main()` instead!
+	/// @ingroup	platform
 	#define	MAIN_FUNCTION_NAKED
 
 	/**
