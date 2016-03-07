@@ -19,7 +19,8 @@ ISR(TIMER2_COMPA_vect)
 	buttons.update(Button::read() ? BUTTON_1 : 0);
 }
 
-MAIN_FUNCTION
+int 
+xpcc_main()
 {
 	Led::setOutput();
 	Led::reset();

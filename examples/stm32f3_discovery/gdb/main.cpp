@@ -86,7 +86,8 @@ void rec_itr()
 	(void)i;
 }
 
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

@@ -54,7 +54,8 @@ displayMessage(const xpcc::can::Message& message)
 }
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

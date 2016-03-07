@@ -185,7 +185,7 @@ drawNumber(xpcc::glcd::Point cursor, uint8_t number)
 }
 
 int
-main()
+xpcc_main()
 {
 	led::R::set();
 	led::G::set();

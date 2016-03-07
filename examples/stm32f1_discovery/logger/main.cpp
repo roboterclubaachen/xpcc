@@ -17,7 +17,8 @@ xpcc::log::Logger xpcc::log::warning(loggerDevice);
 xpcc::log::Logger xpcc::log::error(loggerDevice);
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

@@ -20,7 +20,7 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 #define	XPCC_LOG_LEVEL xpcc::log::DEBUG
 
 int
-main()
+xpcc_main()
 {
     GpioOutputD1::connect(Uart0::Tx);
     GpioInputD0::connect(Uart0::Rx);

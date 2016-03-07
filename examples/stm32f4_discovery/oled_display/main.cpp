@@ -16,7 +16,8 @@ typedef I2cMaster1 MyI2cMaster;
 xpcc::Ssd1306<MyI2cMaster> display;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

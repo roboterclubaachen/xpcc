@@ -35,7 +35,8 @@ xpcc::log::Logger xpcc::log::error(loggerDevice);
 using namespace Board;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 	LedOrange::set();

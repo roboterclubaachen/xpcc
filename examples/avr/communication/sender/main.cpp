@@ -71,7 +71,8 @@ namespace component
 }
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int 
+xpcc_main()
 {
     GpioOutputD1::connect(Uart0::Tx);
     GpioInputD0::connect(Uart0::Rx);

@@ -27,7 +27,7 @@ static constexpr uint32_t canBusBaudRate = 125000;
 xpcc::hosted::CanUsb canUsb;
 
 int
-main()
+xpcc_main()
 {
 	if (not canUsb.open("/dev/ttyUSB0", canBusBaudRate)) {
 		XPCC_LOG_ERROR << "Could not open port" << xpcc::endl;

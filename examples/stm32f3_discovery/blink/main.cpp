@@ -2,7 +2,8 @@
 
 using namespace Board;
 
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	Board::initialize();
 

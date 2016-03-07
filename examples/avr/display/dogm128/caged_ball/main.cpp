@@ -30,7 +30,7 @@ xpcc::DogM128< lcd::SPI, lcd::Cs, lcd::A0, lcd::Reset, true > display;
 using namespace xpcc::glcd;
 
 int
-main()
+xpcc_main()
 {
 	led::R::set();
 	led::G::set();

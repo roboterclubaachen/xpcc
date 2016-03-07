@@ -27,7 +27,7 @@ xpcc::Hd44780< lcd::Data8Bit, lcd::Rw, lcd::Rs, lcd::E > display(20, 4);
 //xpcc::Hd44780< lcd::Data4Bit, lcd::Rw, lcd::Rs, lcd::E > display(20, 4);
 
 int
-main()
+xpcc_main()
 {
 	lcd::Backlight::setOutput();
 	lcd::Backlight::reset();

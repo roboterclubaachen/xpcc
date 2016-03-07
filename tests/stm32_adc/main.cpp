@@ -92,7 +92,8 @@ extern "C" void ADC1_2_IRQHandler(void)
 
 using namespace xpcc;
 
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	initClock();
 #ifdef __OLIMEX

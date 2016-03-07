@@ -72,7 +72,8 @@ ISR(TIMER2_COMPA_vect)
 	xpcc::Clock::increment();
 }
 
-MAIN_FUNCTION
+int
+xpcc_main()
 {
 	// Enable a yellow backlight
 	led::R::set();

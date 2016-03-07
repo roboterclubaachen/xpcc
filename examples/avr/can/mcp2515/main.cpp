@@ -33,7 +33,7 @@ FLASH_STORAGE(uint8_t canFilter[]) =
 };
 
 int
-main()
+xpcc_main()
 {
 	// Initialize SPI interface and the other pins
 	// needed by the MCP2515

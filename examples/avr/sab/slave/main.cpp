@@ -79,7 +79,8 @@ FLASH_STORAGE(xpcc::sab::Action actionList[]) =
 typedef xpcc::sab::Slave< xpcc::sab::Interface< Uart0 > > Slave;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int 
+xpcc_main()
 {
 	// initialize ABP interface, set baudrate etc.
 	Slave slave(0x02,

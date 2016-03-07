@@ -8,7 +8,7 @@
 #define	XPCC_LOG_LEVEL xpcc::log::INFO
 
 int
-main()
+xpcc_main()
 {
 	// Let's print some information that is provided in the xpcc_git_info.hpp
 	XPCC_LOG_INFO << "Local Git User:" << xpcc::endl;
