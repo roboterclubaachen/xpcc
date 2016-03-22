@@ -13,10 +13,12 @@ which is efficient enough to be deployed on a small ATtiny, yet powerful enough 
 use of advanced capabilities found on the 32bit ARM Cortex-M.
 
 TL;DR:
+
 - [This project has a homepage](http://xpcc.io) with [install instructions](http://xpcc.io/install.html) and [a technical blog](http://blog.xpcc.io).
 - [Feast your eyes on lots of working examples](examples).
 - [API documentation is available too](http://xpcc.io/api/modules.html).
 - [We have Continuous Integration as well](https://travis-ci.org/roboterclubaachen/xpcc).
+- [We care a lot about testing and are keen to develop powerful testing strategies for embedded devices.](TESTING.md)
 - You have questions? [Ask them on our mailing list](http://mailman.rwth-aachen.de/mailman/listinfo/xpcc-dev)
 or [have a look at the archive](http://blog.gmane.org/gmane.comp.hardware.arm.cortex.xpcc.devel).
 - You found a bug? [Open up an issue, we don't bite](https://github.com/roboterclubaachen/xpcc/issues).

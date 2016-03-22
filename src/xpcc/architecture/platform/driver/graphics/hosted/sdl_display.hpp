@@ -31,7 +31,7 @@
 #define XPCC__SDL_DISPLAY_HPP
 
 #include <xpcc/ui/display/graphic_display.hpp>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 namespace xpcc
 {
