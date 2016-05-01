@@ -1,4 +1,4 @@
-#include "../../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/debug/logger.hpp>
 #include <xpcc/driver/display/parallel_tft.hpp>
 #include <xpcc/driver/bus//tft_memory_bus.hpp>
@@ -404,7 +404,8 @@ test_callback(const xpcc::gui::InputEvent& ev, xpcc::gui::Widget* w, void* data)
 xpcc::glcd::Point calibration[] = {{3339, 3046},{931, 2428},{2740, 982}};
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

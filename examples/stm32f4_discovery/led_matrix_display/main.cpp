@@ -1,4 +1,4 @@
-#include "../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/processing.hpp>
 #include <xpcc/driver/display/max7219matrix.hpp>
 
@@ -33,7 +33,8 @@ typedef xpcc::SoftwareSpiMaster< Clk, Data > Spi;
 xpcc::Max7219matrix<Spi, Cs, 3, 1> ledMatrixDisplay;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

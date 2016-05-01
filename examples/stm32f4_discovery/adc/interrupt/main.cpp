@@ -1,4 +1,4 @@
-#include "../../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/debug/logger.hpp>
 
 // ----------------------------------------------------------------------------
@@ -26,7 +26,8 @@ printAdc()
 }
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

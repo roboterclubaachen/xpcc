@@ -18,7 +18,7 @@ using LedGreen = GpioOutputB0;
 using LedRed = GpioB1;
 
 int
-main(void)
+main()
 {
 	LedGreen::setOutput();
 	LedRed::setOutput();

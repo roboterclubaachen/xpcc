@@ -1,6 +1,6 @@
 #include <xpcc/architecture/platform.hpp>
 #include <xpcc/debug/logger.hpp>
-#include "../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 
 xpcc::IODeviceWrapper< Usart2, xpcc::IOBuffer::BlockIfFull > loggerDevice;
 xpcc::log::Logger xpcc::log::info(loggerDevice);
@@ -40,7 +40,8 @@ displayMessage(const xpcc::can::Message& message)
 }
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

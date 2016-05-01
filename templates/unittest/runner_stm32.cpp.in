@@ -20,7 +20,7 @@ using namespace xpcc::stm32;
 xpcc::IODeviceWrapper< Usart2, xpcc::IOBuffer::BlockIfFull > loggerDevice;
 
 int
-main(void)
+main()
 {
 	Board::initialize();
 

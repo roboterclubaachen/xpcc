@@ -1,4 +1,4 @@
-#include "../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/driver/inertial/lis302dl.hpp>
 #include <xpcc/processing.hpp>
 #include <xpcc/math.hpp>
@@ -94,7 +94,8 @@ private:
 
 ReaderThread reader;
 
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

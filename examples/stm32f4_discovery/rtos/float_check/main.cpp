@@ -1,4 +1,4 @@
-#include "../../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/processing/rtos.hpp>
 
 using namespace xpcc::stm32;
@@ -80,7 +80,8 @@ P< GpioD15, 260 + 30 > p4('!');
 
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

@@ -1,4 +1,4 @@
-#include "../../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/driver/radio/nrf24/nrf24_phy.hpp>
 #include <xpcc/debug/logger.hpp>
 #include <xpcc/processing.hpp>
@@ -76,7 +76,8 @@ configureBoth(Register_t reg, uint8_t value)
 	nrf24prx::writeRegister(reg, value);
 }
 
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

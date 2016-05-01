@@ -1,4 +1,4 @@
-#include "../../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/debug/logger.hpp>
 #include <xpcc/processing.hpp>
 
@@ -28,7 +28,8 @@ typedef xpcc::AdcSampler< AdcInterrupt2, 3, 100 > sensors;
 xpcc::ShortTimeout timeout(100);
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

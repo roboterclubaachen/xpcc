@@ -7,7 +7,7 @@
  *
  */
 
-#include "../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 
 using namespace Board;
 
@@ -44,7 +44,8 @@ EXTI15_10_IRQHandler(void)
 }
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

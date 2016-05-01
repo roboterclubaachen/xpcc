@@ -39,12 +39,10 @@ class ComponentDictionary(utils.SingleAssignDictionary):
 		for action in self.actions:
 			id = action.id
 			if id in actionIds:
-				next_id = id
-				while next_id in actionIds:
-					next_id += 1
+				next_id = self._find_next_available_action_id(id)
 				
-				raise ParserException("Duplicate Action-Identifier, '0x%02x' is used for '%s' and '%s'!" \
-						"'0x%02x' might be unused."	% 
+				raise ParserException("Duplicate Action-Identifier, '0x%02x'. Used for '%s' and '%s'," \
+						"Next unused: '0x%02x'."	% 
 						(id, action.name, actionIds[id].name, next_id))
 			else:
 				actionIds[id] = action
@@ -58,15 +56,43 @@ class ComponentDictionary(utils.SingleAssignDictionary):
 				continue
 			
 			if id in componentIdentifier:
-				next_id = id
-				while next_id in componentIdentifier:
-					next_id += 1
+				next_id = self._find_next_available_component_id(id)
 				
-				raise ParserException("Duplicate Component-Identifier, '0x%02x' is used for '%s' and '%s'! " \
-						"'0x%02x' might be unused."	% 
+				raise ParserException("Duplicate Component-Identifier: '0x%02x'. Used for '%s' and '%s'. " \
+						"Next unused: '0x%02x'."	% 
 						(id, component.name, componentIdentifier[id].name, next_id))
 			else:
 				componentIdentifier[id] = component
+	
+	def _find_next_available_component_id(self, id):
+		"""Returns the next higher component id that is not used."""
+		
+		#go through all availiable components and store their ids in ci
+		#find the next id, that is available
+		usedIds = []
+		for component in self.values():
+			i = component.flattened().id
+			if i is not None:
+				usedIds.append(i)
+		
+		while id in usedIds:
+			id += 1
+			
+		return id
+	
+	def _find_next_available_action_id(self, id):
+		"""Returns the next higher action id that is not used."""
+		
+		#go through all availiable actions and store their ids in
+		#find the next id, that is available
+		usedIds = []
+		for action in self.actions:
+			usedIds.append(action.id)
+		
+		while id in usedIds:
+			id += 1
+			
+		return id
 	
 	def __iter__(self):
 		""" Generates an iterator that will iterate over all non abstract components """

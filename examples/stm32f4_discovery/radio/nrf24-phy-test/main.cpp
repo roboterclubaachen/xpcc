@@ -1,4 +1,4 @@
-#include "../../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/driver/radio/nrf24/nrf24_phy.hpp>
 #include <xpcc/debug/logger.hpp>
 
@@ -41,7 +41,8 @@ typedef GpioOutputA1  Ce;
 
 typedef xpcc::Nrf24Phy<SpiMaster2, Csn, Ce> nrf24phy;
 
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

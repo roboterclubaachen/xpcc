@@ -1,4 +1,4 @@
-#include "../stm32f3_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/driver/usb/ft245.hpp>
 
 /**
@@ -12,7 +12,8 @@
  * For every character received the red LED toggles once.
  *
  */
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

@@ -1,4 +1,4 @@
-#include "../stm32f072_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/processing.hpp>
 #include <xpcc/math.hpp>
 
@@ -62,7 +62,8 @@ private:
 ReaderThread reader;
 
 
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 	Board::initializeL3g();

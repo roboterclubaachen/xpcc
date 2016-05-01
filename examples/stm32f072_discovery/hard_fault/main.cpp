@@ -1,4 +1,4 @@
-#include "../stm32f072_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/debug/logger.hpp>
 
 // ----------------------------------------------------------------------------
@@ -16,7 +16,8 @@ xpcc::log::Logger xpcc::log::warning(loggerDevice);
 xpcc::log::Logger xpcc::log::error(loggerDevice);
 
 
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 
