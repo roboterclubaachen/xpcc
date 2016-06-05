@@ -1,6 +1,6 @@
 #include <xpcc/architecture/platform.hpp>
 
-using namespace Board;
+// using namespace Board;
 
 //using pll = Pll< InternalClock, MHz24 >;
 using pll = Pll< ExternalCrystal<MHz8>, 22000000 >;
@@ -23,15 +23,15 @@ main()
 	GpioOutputA2::connect(Usart2::Tx);
 	Usart2::initialize<systemClock, 115200>(8);
 
-	LedBlue::set();
+	Board::LedBlue::set();
 
 	while (1)
 	{
-		LedGreen::toggle();
-		xpcc::delayMilliseconds(Button::read() ? 100 : 500);
+		Board::LedGreen::toggle();
+		xpcc::delayMilliseconds(Board::Button::read() ? 100 : 500);
 
-		LedBlue::toggle();
-		xpcc::delayMilliseconds(Button::read() ? 100 : 500);
+		Board::LedBlue::toggle();
+		xpcc::delayMilliseconds(Board::Button::read() ? 100 : 500);
 	}
 
 	return 0;
