@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # 
 # Copyright (c) 2009, Roboterclub Aachen e.V.
@@ -107,5 +107,5 @@ for key, value in ARGUMENTS.items():
 	unittest_str += (" %s=%s" % (key, value))
 env.Phony(unittest=unittest_str)
 
-env.Alias('all', ['doc', 'update', 'templates', 'unittest'])
+env.Alias('all', ['doc', 'unittest'])
 env.Default('all')

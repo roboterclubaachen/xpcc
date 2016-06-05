@@ -1,8 +1,9 @@
 #include <xpcc/architecture/platform.hpp>
-#include "../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 
 
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

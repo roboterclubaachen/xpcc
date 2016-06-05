@@ -1,4 +1,4 @@
-#include "../stm32f3_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/processing.hpp>
 #include <xpcc/debug/logger.hpp>
 
@@ -54,7 +54,8 @@ displayMessage(const xpcc::can::Message& message)
 }
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

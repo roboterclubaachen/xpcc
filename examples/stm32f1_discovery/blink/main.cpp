@@ -1,4 +1,4 @@
-#include "../stm32f1_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 
 using namespace Board;
 
@@ -10,7 +10,8 @@ using clockOutput = ClockOutput< pll >;
 static_assert(systemClock::Fcpu == 2750000, "CPU Frequency is not 22/8 MHz!");
 static_assert(systemClock::Fcpu == pll::OutputFrequency / 8, "CPU Frequency is not 22/8 MHz!");
 
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 	systemClock::enable();

@@ -10,18 +10,16 @@
 #ifndef XPCC__PLATFORM_HPP
 #define XPCC__PLATFORM_HPP
 
-/**
- * \ingroup 	architecture
- * \defgroup	platform	Supported Platforms
- *
- */
-
 #include <stdint.h>
 
 #include <xpcc/architecture/detect.hpp>		// sets XPCC__CPU_xx etc. macros
 #include <xpcc/architecture/utils.hpp>
 
 // Include generated Platform sources:
-#include "${include_path}"
+#include "{{include_path}}"
+
+%% if board is defined
+#include <xpcc/architecture/platform/board/{{board}}/{{board}}.hpp>
+%% endif
 
 #endif	// XPCC__PLATFORM_HPP

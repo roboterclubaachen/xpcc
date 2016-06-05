@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # 
 # Copyright (c) 2014, Roboterclub Aachen e.V.
 # All Rights Reserved.
@@ -23,7 +23,7 @@ def openocd_remote_run(env, source, alias='openocd_remote_run'):
 		action = fail
 		return env.AlwaysBuild(env.Alias(alias, source, action))
 	else:
-		commands = ["init", "reset halt", "flash write_image erase /tmp/openocd.hex", "reset run"]
+		commands = ["init", "reset halt", "flash write_image erase /tmp/openocd.hex", "reset halt", "mww 0xE000EDF0 0xA05F0000"]
 		action = Action("scp $SOURCE $OPENOCD_REMOTE_USER@$OPENOCD_REMOTE_HOST:/tmp/openocd.hex; echo %s | nc $OPENOCD_REMOTE_HOST 4444" % ' '.join(['"%s;"' % c for c in commands]),
 			cmdstr="$OPENOCD_COMSTR")
 		return env.AlwaysBuild(env.Alias(alias, source, action))
@@ -38,6 +38,19 @@ def gdb_remote_program(env, source, alias='gdb_remote_program'):
 		'-ex "monitor reset "',
 		'-ex "disconnect"',
 		'-ex "quit"',
+		'$SOURCE']
+
+	action = Action(' '.join(cmd))
+	return env.AlwaysBuild(env.Alias(alias, source, action))
+
+# -----------------------------------------------------------------------------
+# Interactively debug via a remote gdb session
+def gdb_remote_debug(env, source, alias='gdb_remote_debug'):
+	gdb = "arm-none-eabi-gdb"
+	cmd = [gdb, '-q',
+	    '--tui',
+		'-ex "target remote $OPENOCD_REMOTE_HOST:3333"',
+		'-ex "monitor halt"',
 		'$SOURCE']
 
 	action = Action(' '.join(cmd))
@@ -75,6 +88,7 @@ def generate(env, **kw):
 	env.AddMethod(openocd_remote_run,  'OpenOcdRemote')
 	env.AddMethod(gdb_remote_program,  'GdbRemoteProgram')
 	env.AddMethod(gdb_remote_reset,    'GdbRemoteReset')
+	env.AddMethod(gdb_remote_debug,    'GdbRemoteDebug')
 
 def exists(env):
 	return env.Detect('openocd_remote')

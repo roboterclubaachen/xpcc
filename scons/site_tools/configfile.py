@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Copyright (c) 2009, Roboterclub Aachen e.V.
 # All rights reserved.
@@ -137,6 +137,9 @@ class Scanner:
 			ignoreList = listify(ignore)
 		pathlist = listify(path)
 
+		if 'XPCC_BOARD_PATH' in self.env:
+			pathlist.append(self.env['XPCC_BOARD_PATH'])
+
 		self.sources = FileList()
 		self.header = FileList()
 		self.defines = {}
@@ -187,9 +190,8 @@ class Scanner:
 
 						self.sources.extend(files)
 
-					if self.unittest is True:
-						for header in self.HEADER:
-							self.header.extend(self.env.Glob(p + header))
+					for header in self.HEADER:
+						self.header.extend(self.env.Glob(p + header))
 
 	def __iadd__(self, item):
 		self.append(item)

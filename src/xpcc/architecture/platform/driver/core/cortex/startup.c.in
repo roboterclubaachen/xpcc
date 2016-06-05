@@ -65,12 +65,11 @@
  * As they are weak aliases, any function with the same name will override
  * this definition.
  */
-void Reset_Handler(void);
+void Reset_Handler(void)				__attribute__((noreturn));
 void NMI_Handler(void)					__attribute__ ((weak, alias("defaultHandler")));
-%% if target is cortex_m3 or target is cortex_m4 or target is cortex_m7
+%% if target is stm32
 void HardFault_Handler(void);
-%% elif target is cortex_m0
-%# for cortex m0 no hard fault handler is implemented
+%% else
 void HardFault_Handler(void)			__attribute__ ((weak, alias("defaultHandler")));
 %% endif
 %# Remember declarations to avoid redeclarations
@@ -90,64 +89,49 @@ void HardFault_Handler(void)			__attribute__ ((weak, alias("defaultHandler")));
 typedef void (* const FunctionPointer)(void);
 
 // defined in the linkerscript
-extern uint32_t __stack_end;
+extern uint32_t __main_stack_top[];
+extern uint32_t __process_stack_top[];
 
 %% if parameters.vector_table_in_ram
-// Define the vector table
-FunctionPointer flashVectors[4] __attribute__ ((section(".reset"))) =
-{
-	(FunctionPointer) &__stack_end,	// stack pointer
-	Reset_Handler,				// code entry point
-	NMI_Handler,				// NMI handler
-	HardFault_Handler,			// hard fault handler
-};
-
-FunctionPointer ramVectors[] __attribute__ ((section(".vectors"))) =
-%% else
-FunctionPointer flashVectors[] __attribute__ ((section(".reset"))) =
+// reserve space for the remapped vector table in RAM
+__attribute__(( section(".vectors") ))
+FunctionPointer ramVectors[{{number_of_interrupts + 16}}];
 %% endif
+// Define the vector table
+__attribute__(( section(".reset") ))
+FunctionPointer flashVectors[] =
 {
-	(FunctionPointer) &__stack_end,		// -16: stack pointer
-	Reset_Handler,						// -15: code entry point
-	NMI_Handler,						// -14: Non Maskable Interrupt handler
-	HardFault_Handler,					// -13: hard fault handler
+	(FunctionPointer)__main_stack_top,		// -16: stack pointer
+	Reset_Handler,							// -15: code entry point
+	NMI_Handler,							// -14: Non Maskable Interrupt handler
+	HardFault_Handler,						// -13: hard fault handler
 %% for addr in range(4 - 16, number_of_interrupts + 1)
 %% 	if addr in i
 %%		set suffix = "_IRQHandler"
 %%		if addr < 0
 %%			set suffix = ""
 %%		endif
-	{{ (i[addr][0] + suffix + ",") | xpcc.pad(32) }}// {{addr}}: {{i[addr][1]}}
+	{{ (i[addr][0] + suffix + ",") | xpcc.pad(36) }}// {{ (addr|string).rjust(3) }}
 %% 	else
-	0,									// {{addr}}
+	0,										// {{ (addr|string).rjust(3) }}
 %% 	endif
 %% endfor
 };
 
 // ----------------------------------------------------------------------------
 // The following are constructs created by the linker, indicating where the
-// the "data" and "bss" segments reside in memory.  The initializers for the
-// for the "data" segment resides immediately following the "text" segment.
-extern uint32_t __fastcode_load;
-extern uint32_t __fastcode_start;
-extern uint32_t __fastcode_end;
+// the "data" and "bss" segments reside in memory.
+extern uint32_t __stack_start[];
+extern uint32_t __stack_end[];
 
-extern uint32_t __vector_table_ram_load;
-extern uint32_t __vector_table_ram_start;
-extern uint32_t __vector_table_ram_end;
+extern uint32_t __table_copy_start[];
+extern uint32_t __table_copy_end[];
 
-extern uint32_t __vector_table_rom_start;
+extern uint32_t __table_zero_start[];
+extern uint32_t __table_zero_end[];
 
-extern uint32_t __fastdata_load;
-extern uint32_t __fastdata_start;
-extern uint32_t __fastdata_end;
-
-extern uint32_t __data_load;
-extern uint32_t __data_start;
-extern uint32_t __data_end;
-
-extern uint32_t __bss_start;
-extern uint32_t __bss_end;
+extern uint32_t __vector_table_rom_start[];
+extern uint32_t __vector_table_ram_start[];
 
 // Application's main function
 int
@@ -160,7 +144,7 @@ __libc_init_array(void);
 extern void
 exit(int) __attribute__ ((noreturn, weak));
 
-%% if parameters.allocator == "block_allocator"
+%% if parameters.allocator in ["block_allocator", "tlsf"]
 extern void __xpcc_initialize_memory(void);
 %% endif
 
@@ -178,63 +162,71 @@ extern void xpcc_gpio_enable(void);
 void
 Reset_Handler(void)
 {
-	// startup delay
-	for (volatile unsigned long i = 0; i < 500000; i++)
+	// fill the stack with relative branches to __stack_start
+	// where the undefined instruction is waiting to trigger the hard fault
+	asm volatile (
+		"ldr   r0, =__stack_start"      "\n\t"
+
+		"ldr   r1, =0xE7FDDE00"         "\n\t" // b __stack_start, undef. instruction
+		"stmia r0!, {r1}"               "\n\t"
+
+		"ldr   r1, =__stack_end+4"      "\n\t"
+		"ldr   r2, =0xE7FC"             "\n\t" // the 2's complement offset of -8/2 = -4
+		"ldr   r3, =0xE401"             "\n\t" // largest negative relative branch value!
+
+	"1:  strh  r2, [r0]"                "\n\t" // store the 16bit value into ram
+		"add   r0, #2"                  "\n\t" // add sizeof(uint16_t) to the pointer
+
+		"cmp   r2, r3"                  "\n\t" // compare value with 0xE401
+		"beq   2f"                      "\n\t" // branch forward if equal
+		"sub   r2, #1"                  "\n\t" // subtract only if not equal
+
+	"2:  cmp   r0, r1"                  "\n\t" // compare pointer with end of stack address
+		"bne   1b"                      "\n\t" // continue loop if not equal
+	);
+
+	// copy all memory declared in linkerscript table
 	{
+		uint32_t **table = (uint32_t**)__table_copy_start;
+		while(table < (uint32_t**)__table_copy_end)
+		{
+			uint32_t *src  = table[0]; // load address
+			uint32_t *dest = table[1]; // destination start
+			while (dest < table[2])    // destination end
+			{
+				*(dest++) = *(src++);
+			}
+			table += 3;
+		}
 	}
-
-	uint32_t* src;
-	uint32_t* dest;
-
-%% if parameters.vector_table_in_ram
-	// copy vector table to RAM (.vectors)
-	src = &__vector_table_ram_load;
-	dest = &__vector_table_ram_start;
-	while (dest < &__vector_table_ram_end)
+	// zero all memory declared in linkerscript table
 	{
-		*(dest++) = *(src++);
-	}
-%% endif
-
-	// Copy functions to RAM (.fastcode)
-	src = &__fastcode_load;
-	dest = &__fastcode_start;
-	while (dest < &__fastcode_end)
-	{
-		*(dest++) = *(src++);
-	}
-
-	src = &__fastdata_load;
-	dest = &__fastdata_start;
-	while (dest < &__fastdata_end)
-	{
-		*(dest++) = *(src++);
-	}
-
-	// Copy the data segment initializers from flash to RAM (.data)
-	src = &__data_load;
-	dest = &__data_start;
-	while (dest < &__data_end)
-	{
-		*(dest++) = *(src++);
-	}
-
-	// Fill the bss segment with zero (.bss)
-	dest = &__bss_start;
-	while (dest < &__bss_end)
-	{
-		*(dest++) = 0;
+		uint32_t **table = (uint32_t**)__table_zero_start;
+		while(table < (uint32_t**)__table_zero_end)
+		{
+			uint32_t *dest = table[0]; // destination start
+			while (dest < table[1])    // destination end
+			{
+				*(dest++) = 0;
+			}
+			table += 2;
+		}
 	}
 
 %# Perform Platform Specific Setup
 {{ platform.startupCode() }}
 
-%% if not target is cortex_m0
+%% if not (target is cortex_m0 or target is cortex_m7)
 	// Enable Tracing Debug Unit
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	// Enable CPU cycle counter
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+%% endif
+
+%% if target is cortex_m7
+	// enable instruction cache
+	SCB_EnableICache();
 %% endif
 
 %% if target is cortex_m4f or target is cortex_m7f
@@ -246,15 +238,19 @@ Reset_Handler(void)
 	// Setup NVIC
 	// Set vector table
 	%% if parameters.vector_table_in_ram
-	SCB->VTOR = (uint32_t)(&__vector_table_ram_start);
+	SCB->VTOR = (uint32_t)(__vector_table_ram_start);
 	%% else
-	SCB->VTOR = (uint32_t)(&__vector_table_rom_start);
+	SCB->VTOR = (uint32_t)(__vector_table_rom_start);
 	%% endif
+	// Enables handlers with priority -1 or -2 to ignore data BusFaults caused by load and store instructions.
+	// This applies to the hard fault, NMI, and FAULTMASK escalated handlers.
+	// We use this to opportunistically restore LR, PC and xPSR in the hard fault handler.
+	// Also enables trapping of divide by zero. Otherwise it would just be ignored.
+	SCB->CCR |= SCB_CCR_BFHFNMIGN_Msk | SCB_CCR_DIV_0_TRP_Msk;
 
 	// Lower priority level for all peripheral interrupts to lowest possible
 	for (uint32_t i = 0; i < {{ number_of_interrupts }}; i++) {
-		const uint32_t priority = 0xF;
-		NVIC->IP[i] = (priority & 0xF) << 4;
+		NVIC->IP[i] = 0xff;
 	}
 
 	// Set the PRIGROUP[10:8] bits to
@@ -267,6 +263,11 @@ Reset_Handler(void)
 			SCB_SHCSR_BUSFAULTENA_Msk |
 			SCB_SHCSR_USGFAULTENA_Msk |
 			SCB_SHCSR_MEMFAULTENA_Msk;*/
+%% else
+	%% if parameters.vector_table_in_ram
+	// cortex-m0 does not provide the SCB->VTOR register
+	#error "Placing the vector table in RAM is not supported on Cortex-M0 targets."
+	%% endif
 %% endif
 
 %% if parameters.enable_gpio
@@ -274,8 +275,8 @@ Reset_Handler(void)
 	xpcc_gpio_enable();
 %% endif
 
-%% if parameters.allocator == "block_allocator"
-	// initialize xpcc block allocator
+%% if parameters.allocator in ["block_allocator", "tlsf"]
+	// initialize xpcc block or TLSF allocator
 	// needs to be done before calling the CTORS of static objects
 	__xpcc_initialize_memory();
 %% endif

@@ -7,16 +7,16 @@ using namespace xpcc::lpc;
 typedef GpioOutput0_7 Led;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int 
+main()
 {
 	// New Static Clock Setup ( => Static)
 	typedef Pll<ExternalCrystal<MHz12>, MHz48> clockSource;
 	// typedef ExternalOscillator<MHz12> clockSource;
 	SystemClock<clockSource>::enable();
 
-	ClockTree::connectToClockOut(ClockTree::ClockOutSource::SystemClock);
-	ClockTree::setClockOutDivision(100);
-	Gpio0_1::selectFunction(Gpio0_1::Function::ClockOut);	// TODO: replace with connect
+	ClockControl::enableClockOutput(ClockControl::ClockOutputSource::SystemClock, 100);
+	Gpio0_1::selectFunction(Gpio0_1::Function::ClockOutput);	// TODO: replace with connect
 
 	Led::setOutput();
 

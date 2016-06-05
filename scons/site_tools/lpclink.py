@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # 
 # Copyright (c) 2012, Roboterclub Aachen e.V.
 # All rights reserved.
@@ -57,15 +57,18 @@ def generate(env, **kw):
 		env['LPCDFU_COMSTR']  		= "LPC-Link: writing firmware $LPCLINK_FIRMWARE with $LPCDFU"
 		env['LPCLINK_COMSTR'] 		= "LPC-Link: program $SOURCE"
 		env['LPCLINK_DEBUG_COMSTR'] = "LPC-Link: starting debugger"
-			
-	basePath = '/opt/lpcxpresso/'
-	if platform.system() == 'Darwin':
-		basePath = glob.glob('/Applications/lpcxpresso_*/')
-        if basePath != []:
-            basePath = basePath[0]
-        else:
-            basePath = ""
-	
+
+	if env['LPCLINK_PATH'] == 'default':
+		basePath = '/opt/lpcxpresso/'
+		if platform.system() == 'Darwin':
+			basePath = glob.glob('/Applications/lpcxpresso_*/')
+			if basePath != []:
+				basePath = basePath[0]
+			else:
+				basePath = ""
+	else:
+		basePath = env['LPCLINK_PATH']
+
 	env['LPCDFU'] = basePath + 'lpcxpresso/bin/dfu-util'
 	env['LPCLINK_FIRMWARE'] = basePath + 'lpcxpresso/bin/LPCXpressoWIN.enc'
 	env['LPCLINK'] = basePath + 'lpcxpresso/bin/crt_emu_lpc11_13_nxp'

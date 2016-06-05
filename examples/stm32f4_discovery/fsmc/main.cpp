@@ -1,6 +1,6 @@
 
 #include <xpcc/architecture/platform.hpp>
-#include "../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 
 /*
  * This example shows how to use the FSMC in "Muxed Mode"
@@ -8,7 +8,8 @@
  */
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

@@ -1,4 +1,4 @@
-#include "../stm32f3_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 
 int global_a = 1;
 int global_b = 2;
@@ -86,7 +86,8 @@ void rec_itr()
 	(void)i;
 }
 
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

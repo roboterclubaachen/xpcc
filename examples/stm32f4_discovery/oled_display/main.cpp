@@ -1,4 +1,4 @@
-#include "../stm32f4_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 #include <xpcc/driver/display/ssd1306.hpp>
 
 /**
@@ -16,7 +16,8 @@ typedef I2cMaster1 MyI2cMaster;
 xpcc::Ssd1306<MyI2cMaster> display;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

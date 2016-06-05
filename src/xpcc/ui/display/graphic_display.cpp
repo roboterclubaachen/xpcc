@@ -80,7 +80,7 @@ xpcc::GraphicDisplay::drawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2)
 		if (y1 > y2) {
 			xpcc::swap(y1, y2);
 		}
-		this->drawVerticalLine(glcd::Point(x1, y1), y2 - y1);
+		this->drawVerticalLine(glcd::Point(x1, y1), y2 - y1 + 1);
 	}
 	else if (y1 == y2)
 	{
@@ -88,7 +88,7 @@ xpcc::GraphicDisplay::drawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2)
 		if (x1 > x2) {
 			xpcc::swap(x1, x2);
 		}
-		this->drawHorizontalLine(glcd::Point(x1, y1), x2 - x1);
+		this->drawHorizontalLine(glcd::Point(x1, y1), x2 - x1 + 1);
 	}
 	else
 	{
@@ -117,7 +117,7 @@ xpcc::GraphicDisplay::drawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2)
 			yStep = -1;
 		}
 
-		for (int_fast16_t x = x1; x < x2; ++x)
+		for (int_fast16_t x = x1; x <= x2; ++x)
 		{
 			if (steep) {
 				(this->*draw)(y, x);

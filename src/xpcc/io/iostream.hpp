@@ -15,6 +15,8 @@
 #include <xpcc/architecture/detect.hpp>
 #include <xpcc/architecture/utils.hpp>
 
+#include <stdarg.h>	// va_list
+
 #include "iodevice.hpp"
 #include "iodevice_wrapper.hpp"
 
@@ -31,7 +33,7 @@ namespace xpcc
  */
 class IOStream
 {
-public :
+public:
 	/**
 	 * @param	device	device to write the stream to
 	 *
@@ -439,7 +441,10 @@ public :
 	IOStream&
 	printf(const char* fmt, ...);
 
-protected :
+	IOStream&
+	vprintf(const char *fmt, va_list vlist);
+
+protected:
 	void
 	writeInteger(int16_t value);
 
@@ -481,7 +486,10 @@ protected :
 	writeDouble(const double& value);
 #endif
 
-private :
+	void
+	writeUnsignedInteger(unsigned long unsignedValue, uint_fast8_t base, size_t width, char fill, bool isNegative);
+
+private:
 	enum class
 	Mode
 	{

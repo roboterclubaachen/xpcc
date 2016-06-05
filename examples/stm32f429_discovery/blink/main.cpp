@@ -1,9 +1,10 @@
-#include "../stm32f429_discovery.hpp"
+#include <xpcc/architecture/platform.hpp>
 
 using namespace Board;
 
 // ----------------------------------------------------------------------------
-MAIN_FUNCTION
+int
+main()
 {
 	Board::initialize();
 

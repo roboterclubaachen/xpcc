@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Copyright (c) 2013, Roboterclub Aachen e.V.
 # All rights reserved.
@@ -158,24 +158,24 @@ def platform_tools_generate(env, architecture_path):
 	defines = prop['defines']
 	device_headers = prop['headers']
 
-	if device not in ['darwin', 'linux', 'windows']:
+	if not env['ARCHITECTURE'].startswith('hosted'):
 		# Set Size
 		env['DEVICE_SIZE'] = { "flash": prop['flash'], "ram": prop['ram'], "eeprom": prop['eeprom'] }
-		if (prop['linkerscript'] != ""):
+
+		if not env['ARCHITECTURE'].startswith('avr'):
 			# Find Linkerscript:
-			linkerfile = os.path.join(env['XPCC_PLATFORM_PATH'], 'linker', prop['linkerscript'])
-			if not os.path.isfile(linkerfile):
-				linkerfile = os.path.join(env['XPCC_PLATFORM_PATH'], 'linker', prop['target']['platform'], prop['linkerscript'])
-				if not os.path.isfile(linkerfile):
-					env.Error("Linkerscript for %s (%s) could not be found." % (device, linkerfile))
-					Exit(1)
+			linkerfile = os.path.join(env['XPCC_PLATFORM_GENERATED_PATH'], 'driver', 'core', 'cortex', 'linkerscript.ld')
+			# make the program depend directly on the linkerscript, so it re-links when something changed!
+			Depends(os.path.join(env['XPCC_BUILDPATH'], "..", env['XPCC_PROJECT_NAME'] + ".elf"), linkerfile)
+			# TODO: This is a hack for unittests on stm32. Their elf file is called "executable" instead of the project name.
+			#       This should be properly solved using a custom env.Program wrapper!
+			#       cc @ekiwi
+			Depends(os.path.join(env['XPCC_BUILDPATH'], "..", "executable.elf"), linkerfile)
+
 			linkdir, linkfile = os.path.split(linkerfile)
 			linkdir = linkdir.replace(env['XPCC_ROOTPATH'], "${XPCC_ROOTPATH}")
 			env['LINKPATH'] = str(linkdir)
 			env['LINKFILE'] = str(linkfile)
-		else:
-			env['LINKPATH'] = ""
-			env['LINKFILE'] = ""
 
 	# Loop through Drivers
 	driver_list = []
@@ -215,7 +215,9 @@ def platform_tools_generate(env, architecture_path):
 	src = os.path.join(platform_path, 'platform.hpp.in')
 	tar = env.Buildpath(os.path.join(architecture_path, 'platform.hpp'))
 	sub = {'include_path': '../../../generated_platform/drivers.hpp'}
-	env.Template(target = tar, source = src, substitutions = sub)
+	if 'XPCC_BOARD' in env:
+		sub['board'] = env['XPCC_BOARD']
+	env.Jinja2Template(target = tar, source = src, substitutions = sub)
 
 	#append and return additional CPPPATH
 	cppIncludes = [env.Buildpath('.')]

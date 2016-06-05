@@ -12,7 +12,6 @@
     <ram device-name="401" device-size-id="b|c">65536</ram>
     <ram device-name="401" device-size-id="d|e">98304</ram>
     <ram device-name="411">131072</ram>
-    <linkerscript device-size-id="e">stm32f4xx_e.ld</linkerscript>
     <core>cortex-m4f</core>
     <pin-count device-pin-id="v">100</pin-count>
     <pin-count device-name="401" device-pin-id="c">48</pin-count>
@@ -159,7 +158,7 @@
         <af peripheral="Adc1" name="Channel7" type="analog"/>
       </gpio>
       <gpio port="A" id="8">
-        <af id="0" peripheral="MCO1" type="out"/>
+        <af id="0" peripheral="ClockOutput1" type="out"/>
         <af id="1" peripheral="Timer1" name="Channel1"/>
         <af id="4" peripheral="I2cMaster3" name="Scl" type="out"/>
         <af id="7" peripheral="Uart1" name="Ck" type="out"/>
@@ -325,7 +324,7 @@
         <af id="8" peripheral="UartSpiMaster6" name="Sck" type="out"/>
       </gpio>
       <gpio device-pin-id="r|v" port="C" id="9">
-        <af id="0" peripheral="MCO2" type="out"/>
+        <af id="0" peripheral="ClockOutput2" type="out"/>
         <af id="2" peripheral="Timer3" name="Channel4"/>
         <af id="4" peripheral="I2cMaster3" name="Sda"/>
       </gpio>

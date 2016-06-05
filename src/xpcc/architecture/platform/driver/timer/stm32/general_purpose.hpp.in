@@ -103,7 +103,7 @@ public:
 		Trigger	= TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1,
 		/// Rising edges of the selected trigger (TRGI) clock the counter.
 		ExternalClock = TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1 | TIM_SMCR_SMS_0,
-	%% if target is stm32f3 or target is stm32f7 and (id >= 2 and id <= 4)
+	%% if (target is stm32f3 and target.name != "373") or target is stm32f7 and (id >= 2 and id <= 4)
 		/// reinitialize and start counter
 		SLAVE_RESET_TRIGGER	= TIM_SMCR_SMS_3,
 	%% endif
@@ -346,20 +346,20 @@ public:
 	static inline void
 	setCompareValue(uint32_t channel, Value value)
 	{
-%% if target is stm32f2 or target is stm32f3 or target is stm32f4 or target is stm32f7
-		*(&TIM{{ id }}->CCR1 + (channel - 1)) = value;
-%% else
+%% if target is stm32f1
 		*(&TIM{{ id }}->CCR1 + ((channel - 1) * 2)) = value;
+%% else
+		*(&TIM{{ id }}->CCR1 + (channel - 1)) = value;
 %% endif
 	}
 
 	static inline Value
 	getCompareValue(uint32_t channel)
 	{
-%% if target is stm32f2 or target is stm32f3 or target is stm32f4 or target is stm32f7
-		return *(&TIM{{ id }}->CCR1 + (channel - 1));
-%% else
+%% if target is stm32f1
 		return *(&TIM{{ id }}->CCR1 + ((channel - 1) * 2));
+%% else
+		return *(&TIM{{ id }}->CCR1 + (channel - 1));
 %% endif
 	}
 

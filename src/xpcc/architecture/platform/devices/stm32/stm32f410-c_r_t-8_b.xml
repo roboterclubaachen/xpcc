@@ -5,7 +5,8 @@
  		Please modify the xpcc/tools/device_file_generator code instead and rebuild this file.
  		Be aware, that regenerated files might have a different composition due to technical reasons. -->
   <device platform="stm32" family="f4" name="410" pin_id="c|r|t" size_id="8|b">
-    <flash>65536</flash>
+    <flash device-size-id="8">65536</flash>
+    <flash device-size-id="b">131072</flash>
     <ram>32768</ram>
     <core>cortex-m4f</core>
     <pin-count device-pin-id="t">36</pin-count>
@@ -17,7 +18,8 @@
     <define device-pin-id="t">STM32F410Tx</define>
     <define>STM32F4XX</define>
     <driver type="core" name="cortex">
-      <memory access="rx" start="0x8000000" name="flash" size="64"/>
+      <memory device-size-id="8" access="rx" start="0x8000000" name="flash" size="64"/>
+      <memory device-size-id="b" access="rx" start="0x8000000" name="flash" size="128"/>
       <memory access="rwx" start="0x20000000" name="sram1" size="32"/>
       <vector position="0" name="WWDG"/>
       <vector position="1" name="PVD"/>
@@ -131,7 +133,7 @@
         <af peripheral="Adc1" name="Channel7" type="analog"/>
       </gpio>
       <gpio port="A" id="8">
-        <af id="0" peripheral="MCO1" type="out"/>
+        <af id="0" peripheral="ClockOutput1" type="out"/>
         <af id="1" peripheral="Timer1" name="Channel1"/>
         <af id="7" peripheral="Uart1" name="Ck" type="out"/>
         <af id="7" peripheral="UartSpiMaster1" name="Sck" type="out"/>
@@ -271,7 +273,7 @@
         <af id="8" peripheral="UartSpiMaster6" name="Sck" type="out"/>
       </gpio>
       <gpio device-pin-id="r" port="C" id="9">
-        <af id="0" peripheral="MCO2" type="out"/>
+        <af id="0" peripheral="ClockOutput2" type="out"/>
       </gpio>
       <gpio device-pin-id="r" port="C" id="10">
         <af id="2" peripheral="Timer5" name="Channel2"/>

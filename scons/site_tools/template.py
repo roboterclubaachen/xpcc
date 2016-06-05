@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # 
 # Copyright (c) 2009, Roboterclub Aachen e.V.
 # All rights reserved.
@@ -117,7 +117,7 @@ def jinja2_template_action(target, source, env):
 			return posixpath.normpath(d)
 
 	# path, filename = os.path.split(source[0].path)
-	path = env['XPCC_LIBRARY_PATH']
+	path = env['XPCC_ROOTPATH']
 	filename = os.path.relpath(source[0].path, path)
 	loader = RelEnvironment(loader = jinja2.FileSystemLoader(path), extensions=['jinja2.ext.do'])
 	if 'XPCC_JINJA2_FILTER' in env:

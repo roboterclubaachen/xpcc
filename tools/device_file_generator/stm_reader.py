@@ -75,17 +75,23 @@ class STMDeviceReader(XMLDeviceReader):
 		# The <ram> and <flash> can occur multiple times.
 		# they are "ordered" in the same way as the `(S-I-Z-E)` ids in the device combo name
 		# we must first find out which index the current self.id.size_id has inside `(S-I-Z-E)`
-		sizeIndex = 0
+		sizeIndexFlash = 0
+		sizeIndexRam = 0
 
 		matchString = "\(.(-.)*\)"
 		match = re.search(matchString, comboDeviceName)
 		if match:
 			sizeArray = match.group(0)[1:-1].lower().split("-")
-			sizeIndex = sizeArray.index(self.id.size_id)
+			sizeIndexFlash = sizeArray.index(self.id.size_id)
+			sizeIndexRam = sizeIndexFlash
 
 		rams = self.query("//Ram")
-		if len(rams) <= sizeIndex:
-			sizeIndex = 0
+		if len(rams) <= sizeIndexRam:
+			sizeIndexRam = 0
+
+		flashs = self.query("//Flash")
+		if len(flashs) <= sizeIndexFlash:
+			sizeIndexFlash = 0
 
 		mem_fam = stm32_memory[self.id.family]
 		mem_model = None
@@ -100,9 +106,14 @@ class STMDeviceReader(XMLDeviceReader):
 		if mem_model == None:
 			self.log.error("STMDeviceReader: Memory model not found for device '{}'".format(self.id.string))
 
-		ram = int(rams[sizeIndex].text) + mem_model['memories']['sram1']
-		flash = int(self.query("//Flash")[sizeIndex].text) + mem_model['memories']['flash']
-		self.addProperty('ram', ram * 1024)
+		total_ram = ram = int(rams[sizeIndexRam].text) + mem_model['memories']['sram1']
+		flash = int(flashs[sizeIndexFlash].text) + mem_model['memories']['flash']
+		if 'ccm' in mem_model['memories']:
+			total_ram += mem_model['memories']['ccm']
+		if 'itcm' in mem_model['memories']:
+			total_ram += mem_model['memories']['itcm']
+			total_ram += mem_model['memories']['dtcm']
+		self.addProperty('ram', total_ram * 1024)
 		self.addProperty('flash', flash * 1024)
 
 		memories = []
@@ -181,7 +192,7 @@ class STMDeviceReader(XMLDeviceReader):
 		# I have not found a way to extract the correct vector _position_ from the ST device files
 		# so we have to swallow our pride and just parse the header file
 		# ext/cmsis/stm32/Device/ST/STM32F4xx/Include/
-		headerFilePath = os.path.join('..', '..', 'ext', 'cmsis', 'stm32', 'Device', 'ST', 'STM32{}xx'.format(self.id.family.upper()), 'Include', '{}.h'.format(dev_def.lower()))
+		headerFilePath = os.path.join('..', '..', 'ext', 'st', 'stm32{}xx'.format(self.id.family), 'Include', '{}.h'.format(dev_def.lower()))
 		headerFile = open(headerFilePath, 'r').read()
 		match = re.search("typedef enum.*?/\*\*.*?/\*\*.*?\*/(?P<table>.*?)} IRQn_Type;", headerFile, re.DOTALL)
 		if not match:
@@ -340,7 +351,7 @@ class STMDeviceReader(XMLDeviceReader):
 				if signal.startswith('RCC'):
 					if 'MCO' in signal:
 						id = "" if len(raw_names) < 3 else raw_names[2]
-						af = {'peripheral': 'MCO' + id}
+						af = {'peripheral': 'ClockOutput' + id}
 						af.update({'type': 'out'})
 						if af_id:
 							af.update({'id': af_id})
