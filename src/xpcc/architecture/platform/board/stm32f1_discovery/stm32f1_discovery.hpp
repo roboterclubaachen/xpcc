@@ -26,7 +26,7 @@ namespace Board
 
 /// STM32F100 running at 24MHz generated from the external 8MHz crystal
 /// supplied by the on-board st-link
-using systemClock = SystemClock<Pll<ExternalCrystal<MHz8>, MHz24> >;
+using systemClock = SystemClock<Pll<ExternalCrystal<MHz8>, MHz24>, AhbPrescaler::Div2 >;
 
 
 using Button = GpioInputA0;	// Blue PushButton

@@ -306,6 +306,95 @@ def filter_get_adcs(gpios):
 	return adcs
 
 # -----------------------------------------------------------------------------
+def filter_flatten_clock_tree(node):
+	"""
+	This filter accepts a clock tree as e.g. used by the stm32 clock driver
+	and simply flattens the hierarchy of the tree while preversing definition
+	order and explicitly adding input relationship.
+	Retuns a list of annotated outputs:
+	[ {'name': 'Ahb', 'divisor': ['1', ..., '512'], 'input': 'SystemClock'},
+	  {'name': 'Hclk', 'input': 'Ahb'},
+	  {'name': 'Apb1', 'divisor': '1,2,4,8,16', 'input': 'Ahb'},
+	  ...
+	]
+	"""
+
+	outputs = []
+	for output in node.get('outputs', []):
+		new = dict(output)
+		if any(k in ['divisor', 'multiplier'] for k in output):
+			new[k] = filter_read_number_range(new[k])
+		new.update({'input': node['name']})
+		outputs.append(new)
+
+	for tree in node.get('trees', []):
+		parent = {'input': node['name']}
+		for k, v in tree.iteritems():
+			if k in ['divisor', 'multiplier']:
+				parent[k] = filter_read_number_range(v)
+			elif k not in ['inputs', 'outputs', 'trees']:
+				parent[k] = v
+		outputs.append(parent)
+		outputs.extend(filter_flatten_clock_tree(tree))
+
+	return outputs
+
+# -----------------------------------------------------------------------------
+def filter_filter_clock_tree(tree, filter):
+	"""
+	This filter accepts a clock tree as e.g. used by the stm32 clock driver
+	and filters out those nodes that do not have a divisor
+	"""
+	flat = filter_flatten_clock_tree(tree)
+
+	if not isinstance(filter, list):
+		filter = [filter]
+
+	output = [n for n in flat if any(filt in n for filt in filter)]
+	return output
+
+def filter_read_number_range(input):
+	"""
+	This filter accepts a string and tries to extract all divisor settings
+	and returns them as a dictionary
+	- {'fixed': 2, values: [2]} for "2"
+	- {'values: [1, 2, 3, 4, 5, 6, 7, 8]} for "1:8"
+	- {'values: [1, 2, 4, 8, 16, 64, 128, 256, 512]} for "1,2,4,8,16,64,128,256,512"
+	"""
+
+	if ':' in input:
+		pmin, pmax = map(int, input.split(':'))
+		return {'values': range(pmin, pmax + 1) }
+	elif ',' in input:
+		values = map(int, input.split(','))
+		return {'values': values}
+
+	return {'fixed': int(input), 'values': [2]}
+
+# -----------------------------------------------------------------------------
+def filter_get_clock_input_divisors(node):
+	"""
+	This filter accepts a clock node as e.g. used by the stm32 clock driver
+	and tries to extract all divisor settings and returns them as a dictionary
+	{
+		'Pll': {'fixed': 2},
+		'ExternalClock': {'min': 1, 'max': 16},
+		'Ahb': {'min': 1, 'max': 512, 'values: [1, 2, 4, 8, 16, 64, 128, 256, 512]}
+	}
+	"""
+
+	divisors = {}
+	for input in node['inputs']:
+		if 'divisor' in input:
+			divisors[input['name']] = filter_read_number_range(input['divisor'])
+			if 'min' in input:
+				divisors[input['name']]['minFrequency'] = input['min']
+			if 'max' in input:
+				divisors[input['name']]['maxFrequency'] = input['max']
+
+	return divisors
+
+# -----------------------------------------------------------------------------
 def filter_letter_to_num(letter):
 	"""
 	This filter turns one letter into a number.
@@ -331,6 +420,10 @@ def generate(env, **kw):
 	env.AddTemplateJinja2Filter('getPorts',    filter_get_ports)
 	env.AddTemplateJinja2Filter('letterToNum', filter_letter_to_num)
 	env.AddTemplateJinja2Filter('getAdcs', filter_get_adcs)
+	env.AddTemplateJinja2Filter('getClockInputDivisors', filter_get_clock_input_divisors)
+	env.AddTemplateJinja2Filter('readNumberRange', filter_read_number_range)
+	env.AddTemplateJinja2Filter('flattenClockTree', filter_flatten_clock_tree)
+	env.AddTemplateJinja2Filter('filterClockTree', filter_filter_clock_tree)
 
 	########## Add Template Tests #############################################
 	# Generaic Tests (they accept a string)

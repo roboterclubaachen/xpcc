@@ -52,14 +52,14 @@ public:
 %% if parameters.free_rtos_support
 		static_assert({{ parameters.free_rtos_frequency }} % 1000 == 0,
 				"FreeRTOS switching frequency must be a multiple of 1000Hz!");
-		constexpr float desired = float(SystemClock::Frequency) / {{ parameters.free_rtos_frequency }};
+		constexpr float desired = float(SystemClock::SystemTimer) / {{ parameters.free_rtos_frequency }};
 %% else
-		constexpr float desired = float(SystemClock::Frequency) / 1000;
+		constexpr float desired = float(SystemClock::SystemTimer) / 1000;
 %% endif
 
 		// calculate the possible rates above and below the requested rate
-		constexpr uint32_t rate_lower = SystemClock::Frequency / std::ceil(desired);
-		constexpr uint32_t rate_upper = SystemClock::Frequency / std::floor(desired);
+		constexpr uint32_t rate_lower = SystemClock::SystemTimer / std::ceil(desired);
+		constexpr uint32_t rate_upper = SystemClock::SystemTimer / std::floor(desired);
 
 		// calculate the half-point between the upper and lower rate
 		constexpr uint32_t rate_middle = (rate_upper + rate_lower) / 2;
@@ -67,7 +67,7 @@ public:
 		constexpr uint32_t reload = (1000 < rate_middle) ? std::ceil(desired) : std::floor(desired);
 
 		// check if within rate tolerance
-		constexpr uint32_t generated_rate = SystemClock::Frequency / reload;
+		constexpr uint32_t generated_rate = SystemClock::SystemTimer / reload;
 		Peripheral::assertBaudrateInTolerance<
 				/* nearest possible value */ generated_rate,
 %% if parameters.free_rtos_support

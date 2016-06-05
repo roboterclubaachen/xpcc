@@ -84,6 +84,12 @@ def jinja2_template_action(target, source, env):
 	def filter_split(value, delimiter):
 		return value.split(delimiter)
 
+	def filter_min(values):
+		return min(values)
+
+	def filter_max(values):
+		return max(values)
+
 	def filter_values(lst, key):
 		"""
 		Goes through the list of dictionaries and
@@ -122,6 +128,8 @@ def jinja2_template_action(target, source, env):
 	loader.filters['xpcc.pad'] = filter_pad
 	loader.filters['xpcc.values'] = filter_values
 	loader.filters['split'] = filter_split	# not XPCC specific
+	loader.filters['min'] = filter_min  # not XPCC specific
+	loader.filters['max'] = filter_max  # not XPCC specific
 	if 'XPCC_JINJA2_TEST' in env:
 		loader.tests = dict(loader.tests.items() +
 								env['XPCC_JINJA2_TEST'].items())
