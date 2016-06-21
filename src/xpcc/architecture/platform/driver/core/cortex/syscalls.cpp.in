@@ -279,6 +279,7 @@ get_tlsf_for_ptr(void *p)
 %% endif
 }
 
+__attribute__((used))
 void *malloc(size_t size)
 {
 	void* p = tlsf_malloc(tlsf_heap123, size);
@@ -290,11 +291,13 @@ void *malloc(size_t size)
 	return p;
 }
 
+__attribute__((used))
 void *realloc(void *p, size_t size)
 {
 	return tlsf_realloc(get_tlsf_for_ptr(p), p, size);
 }
 
+__attribute__((used))
 void free(void *p)
 {
 	tlsf_free(get_tlsf_for_ptr(p), p);
