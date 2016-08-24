@@ -16,7 +16,7 @@ main()
 
 	while (1)
 	{
-		SpiMaster1::transferBlocking(0xF0);
+		SpiMaster2::transferBlocking(0xF0);
 	}
 
 	return 0;
