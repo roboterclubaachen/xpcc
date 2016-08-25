@@ -1,5 +1,4 @@
 #include <xpcc/architecture/platform.hpp>
-#include <xpcc/architecture/platform.hpp>
 
 
 int
