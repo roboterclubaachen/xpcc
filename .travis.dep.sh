@@ -75,6 +75,10 @@ if [ x$ARMGCCVERSION == x"5_3-2016q1" ]; then
 	INSTALLPATH="$HOME/cache/gcc-arm-none-eabi-5_3-2016q1"
 	DOWNLOADURI="https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q1-update/+download/gcc-arm-none-eabi-5_3-2016q1-20160330-linux.tar.bz2"
 fi
+if [ x$ARMGCCVERSION == x"5_4-2016q2" ]; then
+	INSTALLPATH="$HOME/cache/gcc-arm-none-eabi-5_4-2016q2"
+	DOWNLOADURI="https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q2-update/+download/gcc-arm-none-eabi-5_4-2016q2-20160622-linux.tar.bz2"
+fi
 
 if [ ! -d $INSTALLPATH ]; then
 	echo "Downloading Cortex-M toolchain $ARMGCCVERSION ..."
