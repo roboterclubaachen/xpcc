@@ -34,6 +34,12 @@
 #include "../../../device.hpp"
 #include "xpcc_config.hpp"
 
+%% if target is stm32f3
+// Remove strange defines from the ST headers (e.g. see stm32f373xc.h at the bottom) 
+#undef USBWakeUp_IRQHandler
+#undef CEC_IRQHandler
+%% endif
+
 // ----------------------------------------------------------------------------
 /*
  * Provide weak aliases for each Exception handler to defaultHandler.
