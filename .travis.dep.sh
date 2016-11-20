@@ -33,7 +33,7 @@ PING_LOOP_PID=$!
 cd $HOME/cache
 if [ ! -d "$HOME/cache/avr8-gnu-toolchain-linux_x86" ]; then
 	echo "Downloading AVR toolchain..."
-	wget http://www.atmel.com/images/avr8-gnu-toolchain-3.4.5.1522-linux.any.x86.tar.gz -O avr8.tar.gz
+	wget http://www.atmel.com/images/avr8-gnu-toolchain-3.5.4.1709-linux.any.x86_64.tar.gz -O avr8.tar.gz
 	tar -xzf avr8.tar.gz
 	rm avr8.tar.gz
 fi

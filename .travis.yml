@@ -27,6 +27,7 @@ before_install:
  - export LDFLAGS="-L$HOME/cache/boost/lib"
  - export PATH="$HOME/cache/avr8-gnu-toolchain-linux_x86/bin:$HOME/cache/gcc-arm-none-eabi-6-2017-q2-update/bin:$PATH"
  - echo $PATH
+ - ls -l $HOME/cache
  - ls -l $HOME/cache/avr8-gnu-toolchain-linux_x86/bin
  - ls -l $HOME/cache/gcc-arm-none-eabi-6-2017-q2-update/bin
  - ls -l $HOME/cache/boost
