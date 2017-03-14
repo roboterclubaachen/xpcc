@@ -21,14 +21,18 @@ addons:
 before_install:
  - export CC=gcc-4.8
  - export CXX=g++-4.8
+ - if [ x$ARMGCCVERSION == x ]; then export ARMGCCVERSION="4_9-2015q3"; fi
+ - ls -l $HOME/cache/
  - bash .travis.dep.sh
+ - echo $ARMGCCVERSION
  - export LD_LIBRARY_PATH="$HOME/cache/boost/lib:$LD_LIBRARY_PATH"
  - export CXXFLAGS="-isystem$HOME/cache/boost/include"
  - export LDFLAGS="-L$HOME/cache/boost/lib"
- - export PATH="$HOME/cache/avr8-gnu-toolchain-linux_x86/bin:$HOME/cache/gcc-arm-none-eabi-4_9-2015q3/bin:$PATH"
+ - export PATH="$HOME/cache/avr8-gnu-toolchain-linux_x86/bin:$HOME/cache/gcc-arm-none-eabi-$ARMGCCVERSION/bin:$PATH"
  - echo $PATH
+ - ls -l $HOME/cache/
  - ls -l $HOME/cache/avr8-gnu-toolchain-linux_x86/bin
- - ls -l $HOME/cache/gcc-arm-none-eabi-4_9-2015q3/bin
+ - ls -l $HOME/cache/gcc-arm-none-eabi-$ARMGCCVERSION/bin
  - ls -l $HOME/cache/boost
  - which avr-g++
  - avr-g++ --version
@@ -44,20 +48,28 @@ cache:
 
 # these are ordered by longest running time, so that all instances complete
 # within the longest running instances, which is the first.
+
+# No multidimensional matrix possible as of now:
+# https://github.com/travis-ci/travis-ci/issues/1519
 env:
- - TEST_SUITE="check=examples examples=stm32f4_discovery"
- - TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="5_4-2016q2" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
  - TEST_SUITE="unittest"
- - TEST_SUITE="unittest target=stm32"
  - TEST_SUITE="unittest target=atmega"
  - TEST_SUITE="check=examples examples=avr"
- - TEST_SUITE="check=devices"
  - TEST_SUITE="check=examples examples=linux"
- - TEST_SUITE="check=examples examples=stm32f429_discovery"
- - TEST_SUITE="check=examples examples=stm32f1_discovery"
- - TEST_SUITE="check=examples examples=stm32f072_discovery"
- - TEST_SUITE="check=examples examples=lpcxpresso"
- - TEST_SUITE="check=examples examples=stm32"
  - TEST_SUITE="check=examples examples=arduino_uno"
  - TEST_SUITE="check=examples examples=stm32f746g_discovery"
  - TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
@@ -68,5 +80,133 @@ env:
  - TEST_SUITE="check=examples examples=nucleo_f429zi"
  - TEST_SUITE="check=examples examples=unittest"
  - TEST_SUITE="check=examples examples=zmq"
+
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="5_3-2016q1" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="5_2-2015q4" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="4_9-2015q3" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="4_9-2015q2" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="4_9-2015q1" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="4_9-2014q4" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="4_8-2014q3" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32f429_discovery"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32"
+# No support for Cortex-M7 yet.
+# - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="4_8-2014q2" TEST_SUITE="check=examples examples=nucleo_f103rb"
+
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32f4_discovery"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32f3_discovery"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="unittest target=stm32"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=devices"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32f429_discovery" 
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32f1_discovery"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32f072_discovery"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=lpcxpresso"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32"
+# No support for Cortex-M7 yet.
+# - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32f7_discovery"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32f4_loa_v2b"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=stm32f469_discovery"
+ - ARMGCCVERSION="4_8-2014q1" TEST_SUITE="check=examples examples=nucleo_f103rb"
 
 script: "scons $TEST_SUITE"

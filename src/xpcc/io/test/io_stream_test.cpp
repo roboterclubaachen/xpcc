@@ -492,6 +492,9 @@ IoStreamTest::testPrintf2()
 		+0.0067890
 	};
 
+	// This test was developed with snprintf available.
+	// With gcc version 4.8.x this is not yet available.
+	#ifdef snprintf
 	for (std::size_t ii = 0; ii < XPCC_ARRAY_SIZE(ff_testvector); ++ii)
 	{
 		float ff = ff_testvector[ii];
@@ -515,6 +518,7 @@ IoStreamTest::testPrintf2()
 			}
 		}
 	}
+	#endif
 }
 
 int myFunc1(void) { return -1; };

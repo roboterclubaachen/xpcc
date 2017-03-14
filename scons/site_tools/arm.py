@@ -150,7 +150,7 @@ def generate(env, **kw):
 		"-Wunused",
 #		"-Wa,-adhlns=${TARGET.base}.lst",
 		"-DBASENAME=${SOURCE.file}",
-		"-fdiagnostics-color=auto",
+#		"-fdiagnostics-color=auto",
 	]
 	env['CCFLAGS'] += env['XPCC_ADDITIONAL_CCFLAGS']
 
