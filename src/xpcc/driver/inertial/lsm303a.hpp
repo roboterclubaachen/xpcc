@@ -13,7 +13,6 @@
 #include <xpcc/architecture/interface/register.hpp>
 #include <xpcc/processing/resumable.hpp>
 #include <xpcc/math/utils/endianness.hpp>
-#include "lis3_transport.hpp"
 
 namespace xpcc
 {
