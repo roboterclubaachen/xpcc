@@ -18,7 +18,6 @@ addons:
 before_install:
  - export CC=gcc-4.8
  - export CXX=g++-4.8
- - ls -l $HOME/cache
  - bash .travis.dep.sh
  - export LD_LIBRARY_PATH="$HOME/toolchain/boost/lib:$LD_LIBRARY_PATH"
  - export CXXFLAGS="-isystem$HOME/toolchain/boost/include"
@@ -36,10 +35,6 @@ before_install:
  - pip install --upgrade pip wheel
  - pip install jinja2 lxml
  - pip install --egg SCons
-
-cache:
- directories:
-  - $HOME/cache
 
 # these are ordered by longest running time, so that all instances complete
 # within the longest running instances, which is the first.
