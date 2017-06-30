@@ -21,13 +21,15 @@ addons:
 before_install:
  - export CC=gcc-4.8
  - export CXX=g++-4.8
+ - ls -l $HOME/cache
  - bash .travis.dep.sh
  - export LD_LIBRARY_PATH="$HOME/cache/boost/lib:$LD_LIBRARY_PATH"
  - export CXXFLAGS="-isystem$HOME/cache/boost/include"
  - export LDFLAGS="-L$HOME/cache/boost/lib"
- - export PATH="$HOME/cache/avr8-gnu-toolchain-linux_x86/bin:$HOME/cache/gcc-arm-none-eabi-6-2017-q2-update/bin:$PATH"
+ - export PATH="$HOME/cache/avr-gcc/bin:$HOME/cache/gcc-arm-none-eabi-6-2017-q2-update/bin:$PATH"
  - echo $PATH
- - ls -l $HOME/cache/avr8-gnu-toolchain-linux_x86/bin
+ - ls -l $HOME/cache
+ - ls -l $HOME/cache/avr-gcc/bin
  - ls -l $HOME/cache/gcc-arm-none-eabi-6-2017-q2-update/bin
  - ls -l $HOME/cache/boost
  - which avr-g++
