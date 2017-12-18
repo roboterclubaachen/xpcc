@@ -126,6 +126,9 @@ public:
 
 	void
 	testPrintf2();
+	
+	void
+	testPrintf3();
 
 	void
 	testFp();
