@@ -151,8 +151,8 @@ def xpcc_library(env, buildpath=None):
 								  'templates/xpcc_config.hpp.in'),
 			substitutions = substitutions)
 
-	env.PrependUnique(LIBS = ['xpcc'])
-	env.PrependUnique(LIBPATH = [os.path.join(env['XPCC_BUILDPATH'], 'src')])
+	env.PrependUnique(LIBS = [library])
+	env.PrependUnique(LIBPATH = [os.path.join(env['XPCC_BUILDPATH'], 'src', 'xpcc', 'src')])
 
 	# restore original environment
 	env['XPCC_BUILDPATH'], env['XPCC_BASEPATH'] = backup
