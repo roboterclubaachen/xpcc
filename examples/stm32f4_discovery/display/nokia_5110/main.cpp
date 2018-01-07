@@ -45,8 +45,15 @@ namespace lcd
 // typedef xpcc::SoftwareSpiMaster< lcd::Clk, lcd::Din> mySpiMaster;
 typedef SpiMaster2 mySpiMaster;
 
+struct Connector {
+	using Spi = mySpiMaster;
+	using Ce = lcd::Ce;
+	using Dc = lcd::Dc;
+	using Reset = lcd::Reset;
+};
+
 // create a LCD object
-xpcc::Nokia5110< mySpiMaster, lcd::Ce, lcd::Dc, lcd::Reset > display;
+xpcc::Nokia5110< Connector > display;
 
 class ThreadOne : public xpcc::pt::Protothread
 {

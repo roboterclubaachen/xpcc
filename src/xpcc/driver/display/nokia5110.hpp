@@ -25,9 +25,14 @@ namespace xpcc
  *
  * \ingroup driver_display
  */
-template < typename Spi, typename Ce, typename Dc, typename Reset >
+template < class Connector >
 class Nokia5110 : public BufferedGraphicDisplay< 84, 48 >
 {
+using Spi = typename Connector::Spi;
+using Ce = typename Connector::Ce;
+using Dc = typename Connector::Dc;
+using Reset = typename Connector::Reset;
+
 public:
 	void
 	initialize();

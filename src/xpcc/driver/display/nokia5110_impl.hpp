@@ -14,9 +14,9 @@
 namespace xpcc
 {
 
-template< typename Spi, typename Ce, typename Dc, typename Reset >
+template< class Connector >
 void
-Nokia5110< Spi, Ce, Dc, Reset >::initialize()
+Nokia5110< Connector >::initialize()
 {
 	Reset::set();
 
@@ -36,9 +36,9 @@ Nokia5110< Spi, Ce, Dc, Reset >::initialize()
 	// writeCommand(0x0d); // inverse
 }
 
-template< typename Spi, typename Ce, typename Dc, typename Reset >
+template< class Connector >
 void
-Nokia5110< Spi, Ce, Dc, Reset >::update()
+Nokia5110< Connector >::update()
 {
 	// goto 0, 0
 	writeCommand(0x80); // Column
@@ -54,9 +54,9 @@ Nokia5110< Spi, Ce, Dc, Reset >::update()
 	Ce::set();
 }
 
-template< typename Spi, typename Ce, typename Dc, typename Reset >
+template< class Connector >
 void
-Nokia5110< Spi, Ce, Dc, Reset >::writeCommand(uint8_t data)
+Nokia5110< Connector >::writeCommand(uint8_t data)
 {
 	Dc::reset(); // low = command
 	Ce::reset();
