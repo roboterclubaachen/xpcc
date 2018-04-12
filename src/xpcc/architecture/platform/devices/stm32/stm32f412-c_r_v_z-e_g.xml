@@ -108,7 +108,7 @@
     <driver type="clock" name="stm32"/>
     <driver type="dma" name="stm32" instances="1,2"/>
     <driver device-pin-id="r|v|z" type="fsmc" name="stm32"/>
-    <driver type="i2c" name="stm32" instances="1,2,3"/>
+    <driver type="i2c" name="stm32_i2c2_v1_1" instances="1,2,3"/>
     <driver type="id" name="stm32"/>
     <driver type="random" name="stm32"/>
     <driver type="spi" name="stm32" instances="1,2,3,4,5"/>
