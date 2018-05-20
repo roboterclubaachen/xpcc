@@ -90,7 +90,7 @@
     </driver>
     <driver type="adc" name="stm32l1"/>
     <driver type="clock" name="stm32"/>
-    <driver type="i2c" name="stm32" instances="1,2"/>
+    <driver type="i2c" name="stm32_i2c1_v1_5" instances="1,2"/>
     <driver type="spi" name="stm32" instances="1,2"/>
     <driver device-size-id="c" device-pin-id="r" type="spi" name="stm32" instances="3"/>
     <driver type="spi" name="stm32_uart" instances="1,2,3"/>

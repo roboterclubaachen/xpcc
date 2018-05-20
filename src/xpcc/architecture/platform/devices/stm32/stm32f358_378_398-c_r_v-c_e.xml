@@ -131,8 +131,8 @@
     <driver type="clock" name="stm32"/>
     <driver type="dma" name="stm32" instances="1,2"/>
     <driver device-name="398" device-size-id="e" device-pin-id="v" type="fsmc" name="stm32"/>
-    <driver type="i2c" name="stm32" instances="1,2"/>
-    <driver device-name="398" device-size-id="e" device-pin-id="v" type="i2c" name="stm32" instances="3"/>
+    <driver type="i2c" name="stm32_i2c1_v1_5" instances="1,2"/>
+    <driver device-name="398" device-size-id="e" device-pin-id="v" type="i2c" name="stm32_i2c1_v1_5" instances="3"/>
     <driver type="id" name="stm32"/>
     <driver type="spi" name="stm32" instances="1,2,3"/>
     <driver device-name="398" device-size-id="e" device-pin-id="v" type="spi" name="stm32" instances="4"/>

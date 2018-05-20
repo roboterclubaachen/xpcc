@@ -49,7 +49,19 @@
 #include <xpcc/architecture/driver/atomic.hpp>
 #include <xpcc/container.hpp>
 
+
+%% if target is stm32l4
+	%% set APB1ENR = 'APB1ENR1'
+	%% set APB1RSTR = 'APB1RSTR1'
+%% else
+	%% set APB1ENR = 'APB1ENR'
+	%% set APB1RSTR = 'APB1RSTR'
+%% endif
+
+
+%% if target is not stm32f0 and target is not stm32l0
 XPCC_ISR_DECL(I2C{{ id }}_ER);
+%% endif
 
 namespace
 {
@@ -257,7 +269,11 @@ namespace
 }
 
 // ----------------------------------------------------------------------------
+%% if target is not stm32f0 and target is not stm32l0
 XPCC_ISR(I2C{{ id }}_EV)
+%% else
+XPCC_ISR(I2C{{ id }})
+%% endif
 {
 	DEBUG_STREAM("\n=== IRQ ===");
 	uint16_t isr = I2C{{ id }}->ISR;
@@ -401,38 +417,45 @@ XPCC_ISR(I2C{{ id }}_EV)
 			callStarting();
 		}
 	}
+%% if target is not stm32f0 and target is not stm32l0
 }
 
 // ----------------------------------------------------------------------------
 XPCC_ISR(I2C{{ id }}_ER)
 {
-	DEBUG_STREAM("ERROR!");
-	uint16_t sr1 = I2C{{ id }}->ISR;
+	uint16_t isr = I2C{{ id }}->ISR;
+%% else
+	if (isr & (I2C_ISR_BERR | I2C_ISR_NACKF | I2C_ISR_ARLO)) {
+%% endif
 
-	if (sr1 & I2C_ISR_BERR)
-	{
-		DEBUG_STREAM("BUS ERROR");
-		I2C{{ id }}->ICR |= I2C_ICR_BERRCF;
-		error = xpcc::I2cMaster::Error::BusCondition;
-	}
-	else if (sr1 & I2C_ISR_NACKF)
+	DEBUG_STREAM("ERROR!");
+
+	if (isr & I2C_ISR_NACKF)
 	{	// acknowledge fail
 		I2C{{ id }}->ICR |= I2C_ICR_NACKCF;
 		DEBUG_STREAM("ACK FAIL");
 		// may also be ADDRESS_NACK
 		error = starting.address ? xpcc::I2cMaster::Error::AddressNack : xpcc::I2cMaster::Error::DataNack;
 	}
-	else if (sr1 & I2C_ISR_ARLO)
+	else if (isr & I2C_ISR_BERR)
+	{
+		DEBUG_STREAM("BUS ERROR");
+		I2C{{ id }}->ICR |= I2C_ICR_BERRCF;
+		error = xpcc::I2cMaster::Error::BusCondition;
+	}
+	else if (isr & I2C_ISR_ARLO)
 	{	// arbitration lost
 		I2C{{ id }}->ISR |= I2C_ICR_ARLOCF;	
 		DEBUG_STREAM("ARBITRATION LOST");
 		error = xpcc::I2cMaster::Error::ArbitrationLost;
 	}
+%% if target is not stm32f0 and target is not stm32l0
 	else if (error == xpcc::I2cMaster::Error::NoError)
 	{
 		DEBUG_STREAM("UNKNOWN");
 		error = xpcc::I2cMaster::Error::Unknown;
 	}
+%% endif
 
 	if (transaction) transaction->detaching(xpcc::I2c::DetachCause::ErrorCondition);
 	transaction = nullptr;
@@ -452,6 +475,10 @@ XPCC_ISR(I2C{{ id }}_ER)
 		I2C_CR1_RXIE);
 
 	callNextTransaction();
+%% if target is not stm32f0 and target is not stm32l0
+%% else
+	}
+%% endif
 }
 
 // ----------------------------------------------------------------------------
@@ -460,11 +487,11 @@ void
 xpcc::stm32::I2cMaster{{ id }}::initializeWithPrescaler(/* uint8_t peripheralFrequency, uint8_t riseTime, uint16_t prescaler */)
 {
 	// Enable clock
-	RCC->APB1ENR1 |= RCC_APB1ENR1_I2C{{ id }}EN;
+	RCC->{{ APB1ENR }} |= RCC_{{ APB1ENR }}_I2C{{ id }}EN;
 
 	// reset module
-	RCC->APB1RSTR1 |=  RCC_APB1RSTR1_I2C{{ id }}RST;
-	RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_I2C{{ id }}RST;
+	RCC->{{ APB1RSTR }} |=  RCC_{{ APB1RSTR }}_I2C{{ id }}RST;
+	RCC->{{ APB1RSTR }} &= ~RCC_{{ APB1RSTR }}_I2C{{ id }}RST;
 
 	// Disable the I2C peripheral which causes a software reset
 	I2C{{ id }}->CR1 &= ~I2C_CR1_PE;
@@ -515,6 +542,7 @@ xpcc::stm32::I2cMaster{{ id }}::initializeWithPrescaler(/* uint8_t peripheralFre
 	// Configure Generalcall and NoStretch mode
 	I2C{{ id }}->CR1 = (0 | I2C_CR1_NOSTRETCH);
 
+%% if target is not stm32f0 and target is not stm32l0
 	// Enable Error Interrupt
 	NVIC_SetPriority(I2C{{ id }}_ER_IRQn, 10);
 	NVIC_EnableIRQ(I2C{{ id }}_ER_IRQn);
@@ -522,6 +550,11 @@ xpcc::stm32::I2cMaster{{ id }}::initializeWithPrescaler(/* uint8_t peripheralFre
 	// Enable Event Interrupt
 	NVIC_SetPriority(I2C{{ id }}_EV_IRQn, 10);
 	NVIC_EnableIRQ(I2C{{ id }}_EV_IRQn);
+%% else
+	// Enable Error and Event Interrupt
+	NVIC_SetPriority(I2C{{ id }}_IRQn, 10);
+	NVIC_EnableIRQ(I2C{{ id }}_IRQn);
+%% endif
 
 	// Enable peripheral
 	I2C{{ id }}->CR1 |= I2C_CR1_PE;
