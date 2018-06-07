@@ -1,3 +1,7 @@
+### xpcc is now deprecated and this repo will be archived at the end of 2018!
+### Use [these instructions to port your code][porting_to_modm] to the successor library [modm](https://modm.io).
+### Ping [@salkinium](https://github.com/salkinium) for answers to your questions.
+
 # xpcc: C++ microcontroller framework <span style="float:right;"><a href="https://circleci.com/gh/roboterclubaachen/workflows/xpcc/tree/develop" style="border-bottom:none">![Build Status](https://circleci.com/gh/roboterclubaachen/xpcc/tree/develop.svg?style=shield)</a></span>
 
 The xpcc framework consists of powerful hardware abstraction layers for many
@@ -220,6 +224,7 @@ Georgi Grinshpun ([@georgi-g](https://github.com/georgi-g)).
 [reference]: http://xpcc.io/reference/api
 [blog]: http://blog.xpcc.io
 [rca]: http://www.roboterclub.rwth-aachen.de
+[porting_to_modm]: https://github.com/modm-io/modm/blob/develop/docs/porting_xpcc_to_modm.md
 
 [Arduino Uno]: https://www.arduino.cc/en/Main/ArduinoBoardUno
 [Nucleo F031K6]: http://www.st.com/en/evaluation-tools/nucleo-f031k6.html
