@@ -8,14 +8,14 @@
 // ----------------------------------------------------------------------------
 
 /**
- * @defgroup 	communication Communication
- * @brief 		Communication systems
+ * @ingroup	communication
+ * @defgroup 802154Frame	IEEE 802.15.4 Frame
+ *
+ *
+ *
+ *
+ * @author	Marten Junga
  */
 
-#include "communication/xpcc.hpp"
-#include "communication/ros.hpp"
-#include "communication/rpr.hpp"
-//#include "communication/amnb.hpp"
-#include "communication/sab.hpp"
-#include "communication/sab2.hpp"
-#include "communication/Frame802154.hpp"
+
+#include "Frame802154/Frame802154.hpp"
