@@ -2,6 +2,12 @@
 ### Use [these instructions to port your code][porting_to_modm] to the successor library [modm](https://modm.io).
 ### Ping [@salkinium](https://github.com/salkinium) for answers to your questions.
 
+modm has significantly improved on the code generation ideas we've prototyped in xpcc, both in breadth (more devices supported) and depth (more accurate data). Check out [how modm works](https://modm.io/how-modm-works) and [how you can get started](https://modm.io/guide/getting-started) with it.
+
+We've had some fantastic engineers volunteer their time on this project over the years, to all of you a big **THANK YOU**! All your contributions have been ported to modm already.
+
+**We're looking forward to even more collaboration with you in modm's future!**
+
 # xpcc: C++ microcontroller framework <span style="float:right;"><a href="https://circleci.com/gh/roboterclubaachen/workflows/xpcc/tree/develop" style="border-bottom:none">![Build Status](https://circleci.com/gh/roboterclubaachen/xpcc/tree/develop.svg?style=shield)</a></span>
 
 The xpcc framework consists of powerful hardware abstraction layers for many
