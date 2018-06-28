@@ -26,6 +26,7 @@ author_handles = {
     "Hans Schily": "RzwoDzwo",
     "Julia Gutheil": None,
     "Kevin Läufer": "ekiwi",
+    "Lucas Mösch": "lmoesch",
     "Marten Junga": "Maju-Ketchup",
     "Martin Esser": "Scabber",
     "Martin Rosekeit": "thundernail",
